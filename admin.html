@@ -584,11 +584,20 @@ async function loadEntries() {
     .from('entries')
     .select('*')
     .order('created_at', { ascending: false });
-  if (!error && data) {
-    allEntries = data;
-    updateStats();
-    renderTable();
+
+  if (error) {
+    document.getElementById('tbl-body').innerHTML = `
+      <tr><td colspan="12" class="text-center py-10 text-sm font-semibold" style="color:#b02500;">
+        <span class="material-symbols-outlined block mb-2" style="font-size:36px;opacity:.4;">error</span>
+        Database error: ${error.message}<br/>
+        <span class="font-normal text-slate-400">Code: ${error.code || 'unknown'}</span>
+      </td></tr>`;
+    return;
   }
+
+  allEntries = data || [];
+  updateStats();
+  renderTable();
 }
 
 // ── Section nav
