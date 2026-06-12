@@ -17,7 +17,8 @@
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
 
     #login-screen { position:fixed; inset:0; z-index:9999; background:linear-gradient(135deg,#0e1c36 0%,#1a3560 60%,#0a1628 100%); display:flex; align-items:center; justify-content:center; }
-    #loading-overlay { position:fixed; inset:0; z-index:9998; background:rgba(255,255,255,.85); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px; }
+    #loading-overlay { position:fixed; inset:0; z-index:9998; background:rgba(255,255,255,.85); display:none; align-items:center; justify-content:center; flex-direction:column; gap:12px; }
+    #loading-overlay.active { display:flex; }
     .spinner { width:36px; height:36px; border:3px solid #f1f5f9; border-top-color:#3ecf8e; border-radius:50%; animation:spin .7s linear infinite; }
     @keyframes spin { to { transform:rotate(360deg); } }
 
@@ -50,7 +51,7 @@
 <body class="bg-slate-100 min-h-screen">
 
 <!-- ══════════ LOADING ══════════ -->
-<div id="loading-overlay" class="hidden">
+<div id="loading-overlay">
   <div class="spinner"></div>
   <p class="text-sm font-semibold text-slate-500">Connecting to database…</p>
 </div>
@@ -501,7 +502,7 @@ async function sha256(msg) {
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 function showLoading(v) {
-  document.getElementById('loading-overlay').classList.toggle('hidden', !v);
+  document.getElementById('loading-overlay').classList.toggle('active', v);
 }
 function showLoginErr(msg) {
   const el = document.getElementById('login-err');
