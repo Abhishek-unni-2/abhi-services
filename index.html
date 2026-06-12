@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Abhi Online Services — Digital Concierge for Government Services</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="hero3d.css" />
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three":         "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#edf8ff",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#dff4ff",
+            "surface-container": "#d1ecfb",
+            "surface-container-high": "#c9e7f6",
+            "surface-container-highest": "#c2e2f2",
+            "surface-variant": "#c2e2f2",
+            "on-surface": "#1c313b",
+            "on-surface-variant": "#495f69",
+            "outline": "#657a85",
+            "outline-variant": "#9ab0bc",
+            "primary": "#914700",
+            "primary-container": "#f97f06",
+            "primary-fixed": "#f97f06",
+            "primary-fixed-dim": "#e67400",
+            "primary-dim": "#7f3d00",
+            "on-primary": "#fff0e8",
+            "on-primary-container": "#3b1900",
+            "secondary": "#005caa",
+            "secondary-container": "#b9d3ff",
+            "secondary-dim": "#005095",
+            "on-secondary": "#eef3ff",
+            "on-secondary-container": "#004887",
+            "tertiary": "#8930b0",
+            "tertiary-container": "#e092ff",
+            "on-tertiary": "#ffedff",
+            "on-tertiary-container": "#520072",
+            "error": "#b02500",
+            "inverse-surface": "#001018",
+            "inverse-on-surface": "#8aa0ab",
+            "inverse-primary": "#f97f06",
+          },
+          fontFamily: {
+            headline: ["Plus Jakarta Sans"],
+            body: ["Inter"],
+          },
+        },
+      },
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* ── Scroll reveal ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 {
+      transition-delay: 0.1s;
+    }
+
+    .reveal-delay-2 {
+      transition-delay: 0.2s;
+    }
+
+    .reveal-delay-3 {
+      transition-delay: 0.3s;
+    }
+
+    .reveal-delay-4 {
+      transition-delay: 0.4s;
+    }
+
+    .reveal-delay-5 {
+      transition-delay: 0.5s;
+    }
+
+    .reveal-delay-6 {
+      transition-delay: 0.6s;
+    }
+
+    /* ── Step connector line ── */
+    .step-line::after {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: calc(50% + 32px);
+      width: calc(100% - 64px);
+      height: 2px;
+      background: linear-gradient(90deg, #f97f06 0%, #005caa 100%);
+      opacity: 0.25;
+    }
+
+    @media (max-width: 767px) {
+      .step-line::after {
+        display: none;
+      }
+    }
+
+    /* ── Testimonial card quote mark ── */
+    .quote-mark {
+      font-size: 5rem;
+      line-height: 0.8;
+      color: #f97f06;
+      opacity: 0.15;
+      font-family: Georgia, serif;
+    }
+
+    /* ── Service card hover lift ── */
+    .service-card {
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .service-card:hover {
+      transform: translateY(-4px);
+    }
+
+    /* ── Gradient text ── */
+    .gradient-text {
+      background: linear-gradient(135deg, #f97f06 0%, #e05c00 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── CTA section background pattern ── */
+    .cta-bg {
+      background: linear-gradient(135deg, #0e1c36 0%, #1a3560 60%, #0a1628 100%);
+    }
+  </style>
+</head>
+
+<body class="bg-surface text-on-surface">
+
+  <!-- ═══════════════════════════════════════
+       NAV
+  ═══════════════════════════════════════ -->
+  <header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm">
+    <nav class="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+      <a href="index.html" class="text-xl font-black tracking-tighter text-orange-800">
+        Abhi Online Services
+      </a>
+      <div class="hidden md:flex items-center space-x-8 font-medium text-sm">
+        <a class="text-orange-700 font-bold border-b-2 border-orange-500 pb-1" href="index.html">Home</a>
+        <a class="text-slate-600 hover:text-orange-600 transition-colors" href="services.html">Services</a>
+        <a class="text-slate-600 hover:text-orange-600 transition-colors" href="#">Track Status</a>
+        <a class="text-slate-600 hover:text-orange-600 transition-colors" href="#">Malayalam</a>
+        <a class="text-slate-600 hover:text-orange-600 transition-colors" href="admin.html">Admin</a>
+      </div>
+      <div class="flex items-center space-x-3">
+        <!-- WhatsApp quick link -->
+        <a href="https://wa.me/919656917405" target="_blank"
+          class="hidden sm:flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold border border-green-200 text-green-700 hover:bg-green-50 transition-all">
+          <span class="material-symbols-outlined text-base" style="font-size:16px;">chat</span>
+          <span>WhatsApp</span>
+        </a>
+        <button
+          class="bg-primary-container text-on-primary-container px-6 py-2 rounded-xl font-bold hover:bg-primary-fixed-dim transition-all active:scale-95">
+          Contact Us
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       HERO  (3D scene)
+  ═══════════════════════════════════════ -->
+  <section id="hero-section" style="padding-top: 72px;">
+    <div id="hero-container" class="relative overflow-hidden"
+      style="min-height:700px; background:linear-gradient(135deg,#080f1e 0%,#0e1c36 55%,#091528 100%);">
+
+      <canvas id="hero-canvas"></canvas>
+      <div id="cursor-glow"></div>
+
+      <!-- Left gradient for text readability -->
+      <div class="hero-overlay absolute inset-0 pointer-events-none z-10"></div>
+
+      <!-- Hero text -->
+      <div class="absolute inset-0 z-20 flex items-center px-8 md:px-16 lg:px-24 pointer-events-none">
+        <div class="max-w-[540px] pointer-events-auto">
+
+          <div
+            class="inline-flex items-center space-x-2 mb-6 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest border"
+            style="background:rgba(249,127,6,0.12); border-color:rgba(249,127,6,0.3); color:#ffb060;">
+            <span class="material-symbols-outlined" style="font-size:14px;">auto_awesome</span>
+            <span>Kerala's Trusted Digital Concierge</span>
+          </div>
+
+          <h1
+            class="hero-title text-4xl md:text-5xl lg:text-[3.4rem] font-extrabold text-white leading-[1.08] tracking-tight mb-6">
+            Government Services,<br />
+            <span style="color:#f97f06;">Done for You.</span>
+          </h1>
+
+          <p class="mb-8 text-sm md:text-base leading-relaxed" style="color:rgba(255,255,255,0.65); max-width:420px;">
+            PAN cards, income certificates, passport applications, utility bills — we handle every step so you don't
+            have to.
+          </p>
+
+          <div class="flex flex-wrap gap-3">
+            <a href="services.html"
+              class="inline-flex items-center space-x-2 px-7 py-3.5 rounded-xl font-bold text-sm transition-all hover:scale-105 active:scale-95"
+              style="background:#f97f06; color:#fff;">
+              <span>Browse Services</span>
+              <span class="material-symbols-outlined text-base" style="font-size:18px;">arrow_forward</span>
+            </a>
+            <a href="https://wa.me/919656917405" target="_blank"
+              class="inline-flex items-center space-x-2 px-7 py-3.5 rounded-xl font-bold text-sm border transition-all hover:scale-105"
+              style="border-color:rgba(255,255,255,0.25); color:#fff; background:rgba(255,255,255,0.07);">
+              <span class="material-symbols-outlined text-base" style="font-size:18px;">chat</span>
+              <span>WhatsApp Us</span>
+            </a>
+          </div>
+
+          <!-- Mini stats -->
+          <div class="flex items-center gap-6 mt-10">
+            <div class="stat-pulse">
+              <div class="text-2xl font-black text-white">5,000+</div>
+              <div class="text-xs" style="color:rgba(255,255,255,0.45);">Services Done</div>
+            </div>
+            <div style="width:1px;height:36px;background:rgba(255,255,255,0.15);"></div>
+            <div class="stat-pulse">
+              <div class="text-2xl font-black text-white">4.9 ★</div>
+              <div class="text-xs" style="color:rgba(255,255,255,0.45);">Avg Rating</div>
+            </div>
+            <div style="width:1px;height:36px;background:rgba(255,255,255,0.15);"></div>
+            <div class="stat-pulse">
+              <div class="text-2xl font-black text-white">24 hr</div>
+              <div class="text-xs" style="color:rgba(255,255,255,0.45);">Turnaround</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="absolute bottom-4 right-4 z-30 lg:hidden px-3 py-1 rounded-full text-[10px] font-semibold"
+        style="background:rgba(249,127,6,0.15); color:rgba(255,255,255,0.5); border:1px solid rgba(249,127,6,0.2);">
+        3D — best on desktop
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       TRUST BAR
+  ═══════════════════════════════════════ -->
+  <div class="border-y border-slate-200 bg-white">
+    <div class="max-w-7xl mx-auto px-6 py-5 flex flex-wrap items-center justify-center md:justify-between gap-6">
+      <div class="flex items-center space-x-3 text-slate-600 text-sm font-medium">
+        <span class="material-symbols-outlined text-orange-500"
+          style="font-variation-settings:'FILL' 1;">verified</span>
+        <span>Government Certified Partner</span>
+      </div>
+      <div class="flex items-center space-x-3 text-slate-600 text-sm font-medium">
+        <span class="material-symbols-outlined text-orange-500" style="font-variation-settings:'FILL' 1;">lock</span>
+        <span>100% Secure &amp; Confidential</span>
+      </div>
+      <div class="flex items-center space-x-3 text-slate-600 text-sm font-medium">
+        <span class="material-symbols-outlined text-orange-500"
+          style="font-variation-settings:'FILL' 1;">schedule</span>
+        <span>24-Hour Turnaround</span>
+      </div>
+      <div class="flex items-center space-x-3 text-slate-600 text-sm font-medium">
+        <span class="material-symbols-outlined text-orange-500"
+          style="font-variation-settings:'FILL' 1;">support_agent</span>
+        <span>WhatsApp Support Available</span>
+      </div>
+      <div class="flex items-center space-x-3 text-slate-600 text-sm font-medium">
+        <span class="material-symbols-outlined text-orange-500" style="font-variation-settings:'FILL' 1;">star</span>
+        <span>4.9 / 5 Customer Rating</span>
+      </div>
+    </div>
+  </div>
+
+  <main class="pb-24">
+
+    <!-- ═══════════════════════════════════════
+         HOW IT WORKS
+    ═══════════════════════════════════════ -->
+    <section class="py-24 px-6 max-w-7xl mx-auto">
+      <div class="text-center mb-16 reveal">
+        <span class="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-4"
+          style="background:#fff3e0; color:#c75e00;">How It Works</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-on-surface mb-4">
+          Your Documents in <span class="gradient-text">3 Simple Steps</span>
+        </h2>
+        <p class="text-on-surface-variant max-w-xl mx-auto text-base leading-relaxed">
+          No queues, no confusion. We handle the paperwork while you get on with your life.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
+
+        <!-- Step 1 -->
+        <div class="relative text-center reveal reveal-delay-1">
+          <div class="step-line"></div>
+          <div class="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-orange-100"
+            style="background:linear-gradient(135deg,#f97f06,#e05c00);">
+            <span class="material-symbols-outlined text-white text-3xl"
+              style="font-variation-settings:'FILL' 1;">search</span>
+          </div>
+          <div class="inline-block px-3 py-1 rounded-full text-xs font-black mb-3"
+            style="background:#fff3e0; color:#c75e00;">Step 01</div>
+          <h3 class="text-xl font-bold text-on-surface mb-3">Choose Your Service</h3>
+          <p class="text-on-surface-variant text-sm leading-relaxed px-2">
+            Browse our catalog or search for the exact document or service you need. We cover 50+ government and utility
+            services.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="relative text-center reveal reveal-delay-2">
+          <div class="step-line"></div>
+          <div class="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-blue-100"
+            style="background:linear-gradient(135deg,#005caa,#003d80);">
+            <span class="material-symbols-outlined text-white text-3xl"
+              style="font-variation-settings:'FILL' 1;">upload_file</span>
+          </div>
+          <div class="inline-block px-3 py-1 rounded-full text-xs font-black mb-3"
+            style="background:#e8f0fb; color:#004080;">Step 02</div>
+          <h3 class="text-xl font-bold text-on-surface mb-3">Share Your Documents</h3>
+          <p class="text-on-surface-variant text-sm leading-relaxed px-2">
+            Simply WhatsApp or upload your existing documents. Our team will verify and prepare everything needed for
+            the application.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="relative text-center reveal reveal-delay-3">
+          <div class="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-green-100"
+            style="background:linear-gradient(135deg,#1a9c56,#127a40);">
+            <span class="material-symbols-outlined text-white text-3xl"
+              style="font-variation-settings:'FILL' 1;">task_alt</span>
+          </div>
+          <div class="inline-block px-3 py-1 rounded-full text-xs font-black mb-3"
+            style="background:#e8f7ef; color:#0d6b38;">Step 03</div>
+          <h3 class="text-xl font-bold text-on-surface mb-3">We Handle the Rest</h3>
+          <p class="text-on-surface-variant text-sm leading-relaxed px-2">
+            We apply, track, and follow up on your behalf. You receive updates on WhatsApp and get your document
+            delivered or collected.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         FEATURED SERVICES
+    ═══════════════════════════════════════ -->
+    <section class="py-20 px-6" style="background:linear-gradient(180deg, #f0f8ff 0%, #edf8ff 100%);">
+      <div class="max-w-7xl mx-auto">
+
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-12 gap-4">
+          <div class="reveal">
+            <span class="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-3"
+              style="background:#fff3e0; color:#c75e00;">Our Services</span>
+            <h2 class="text-3xl md:text-4xl font-extrabold text-on-surface">
+              Popular Services
+            </h2>
+            <p class="text-on-surface-variant mt-2">ഏറ്റവും കൂടുതൽ ആവശ്യപ്പെടുന്ന സേവനങ്ങൾ</p>
+          </div>
+          <a href="services.html"
+            class="reveal inline-flex items-center space-x-2 text-sm font-bold text-orange-700 hover:text-orange-900 transition-colors group">
+            <span>View All Services</span>
+            <span class="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform"
+              style="font-size:18px;">arrow_forward</span>
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+          <!-- Income Certificate -->
+          <a href="services.html"
+            class="service-card group bg-white rounded-[1.75rem] p-7 shadow-sm hover:shadow-xl border border-transparent hover:border-orange-100 reveal reveal-delay-1">
+            <div class="w-12 h-12 rounded-xl mb-5 flex items-center justify-center"
+              style="background:#e8f0fb; color:#005caa;">
+              <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">payments</span>
+            </div>
+            <h3 class="text-lg font-bold text-on-surface mb-1">Income Certificate</h3>
+            <p class="text-sm font-semibold mb-2" style="color:#914700;">വരുമാന സർട്ടിഫിക്കറ്റ്</p>
+            <p class="text-on-surface-variant text-sm leading-relaxed">For scholarships, government schemes and bank
+              loans.</p>
+            <div class="mt-5 flex items-center justify-between">
+              <span class="text-xs font-bold px-3 py-1 rounded-full" style="background:#fff3e0; color:#c75e00;">⚡ 24
+                hrs</span>
+              <span
+                class="material-symbols-outlined text-on-surface-variant group-hover:text-orange-600 transition-colors">arrow_forward</span>
+            </div>
+          </a>
+
+          <!-- PAN Card -->
+          <a href="services.html"
+            class="service-card group bg-white rounded-[1.75rem] p-7 shadow-sm hover:shadow-xl border border-transparent hover:border-orange-100 reveal reveal-delay-2">
+            <div class="w-12 h-12 rounded-xl mb-5 flex items-center justify-center"
+              style="background:#fff3e0; color:#c75e00;">
+              <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">contact_emergency</span>
+            </div>
+            <h3 class="text-lg font-bold text-on-surface mb-1">PAN Card</h3>
+            <p class="text-sm font-semibold mb-2" style="color:#914700;">പാൻ കാർഡ് സേവനങ്ങൾ</p>
+            <p class="text-on-surface-variant text-sm leading-relaxed">New application, corrections and reprint
+              services.</p>
+            <div class="mt-5 flex items-center justify-between">
+              <span class="text-xs font-bold px-3 py-1 rounded-full" style="background:#fff3e0; color:#c75e00;">⚡ 3–5
+                days</span>
+              <span
+                class="material-symbols-outlined text-on-surface-variant group-hover:text-orange-600 transition-colors">arrow_forward</span>
+            </div>
+          </a>
+
+          <!-- Passport -->
+          <a href="services.html"
+            class="service-card group bg-white rounded-[1.75rem] p-7 shadow-sm hover:shadow-xl border border-transparent hover:border-orange-100 reveal reveal-delay-3">
+            <div class="w-12 h-12 rounded-xl mb-5 flex items-center justify-center"
+              style="background:#e8f7ef; color:#1a9c56;">
+              <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">flight_takeoff</span>
+            </div>
+            <h3 class="text-lg font-bold text-on-surface mb-1">Passport Services</h3>
+            <p class="text-sm font-semibold mb-2" style="color:#914700;">പാസ്പോർട്ട് സേവനങ്ങൾ</p>
+            <p class="text-on-surface-variant text-sm leading-relaxed">Fresh application, renewal, and Tatkaal
+              assistance.</p>
+            <div class="mt-5 flex items-center justify-between">
+              <span class="text-xs font-bold px-3 py-1 rounded-full" style="background:#e8f7ef; color:#0d6b38;">⚡
+                Tatkaal</span>
+              <span
+                class="material-symbols-outlined text-on-surface-variant group-hover:text-orange-600 transition-colors">arrow_forward</span>
+            </div>
+          </a>
+
+          <!-- KSEB Bill -->
+          <a href="services.html"
+            class="service-card group bg-white rounded-[1.75rem] p-7 shadow-sm hover:shadow-xl border border-transparent hover:border-orange-100 reveal reveal-delay-1">
+            <div class="w-12 h-12 rounded-xl mb-5 flex items-center justify-center"
+              style="background:#fff3e0; color:#f97f06;">
+              <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">electric_bolt</span>
+            </div>
+            <h3 class="text-lg font-bold text-on-surface mb-1">Electricity Bills</h3>
+            <p class="text-sm font-semibold mb-2" style="color:#914700;">വൈദ്യുതി ബില്ലുകൾ</p>
+            <p class="text-on-surface-variant text-sm leading-relaxed">KSEB and other state electricity board payments.
+            </p>
+            <div class="mt-5 flex items-center justify-between">
+              <span class="text-xs font-bold px-3 py-1 rounded-full" style="background:#fff3e0; color:#c75e00;">⚡
+                Instant</span>
+              <span
+                class="material-symbols-outlined text-on-surface-variant group-hover:text-orange-600 transition-colors">arrow_forward</span>
+            </div>
+          </a>
+
+          <!-- PSC -->
+          <a href="services.html"
+            class="service-card group bg-white rounded-[1.75rem] p-7 shadow-sm hover:shadow-xl border border-transparent hover:border-orange-100 reveal reveal-delay-2">
+            <div class="w-12 h-12 rounded-xl mb-5 flex items-center justify-center"
+              style="background:#f5eeff; color:#8930b0;">
+              <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">work_history</span>
+            </div>
+            <h3 class="text-lg font-bold text-on-surface mb-1">PSC Registration</h3>
+            <p class="text-sm font-semibold mb-2" style="color:#914700;">പിഎസ്സി രജിസ്ട്രേഷൻ</p>
+            <p class="text-on-surface-variant text-sm leading-relaxed">Kerala PSC one-time registration and exam
+              applications.</p>
+            <div class="mt-5 flex items-center justify-between">
+              <span class="text-xs font-bold px-3 py-1 rounded-full" style="background:#f5eeff; color:#6a2090;">⚡ Same
+                day</span>
+              <span
+                class="material-symbols-outlined text-on-surface-variant group-hover:text-orange-600 transition-colors">arrow_forward</span>
+            </div>
+          </a>
+
+          <!-- Caste Certificate -->
+          <a href="services.html"
+            class="service-card group bg-white rounded-[1.75rem] p-7 shadow-sm hover:shadow-xl border border-transparent hover:border-orange-100 reveal reveal-delay-3">
+            <div class="w-12 h-12 rounded-xl mb-5 flex items-center justify-center"
+              style="background:#e8f0fb; color:#005caa;">
+              <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">badge</span>
+            </div>
+            <h3 class="text-lg font-bold text-on-surface mb-1">Caste Certificate</h3>
+            <p class="text-sm font-semibold mb-2" style="color:#914700;">ജാതി സർട്ടിഫിക്കറ്റ്</p>
+            <p class="text-on-surface-variant text-sm leading-relaxed">Official certificate for education and employment
+              benefits.</p>
+            <div class="mt-5 flex items-center justify-between">
+              <span class="text-xs font-bold px-3 py-1 rounded-full" style="background:#e8f0fb; color:#004080;">⚡ 24
+                hrs</span>
+              <span
+                class="material-symbols-outlined text-on-surface-variant group-hover:text-orange-600 transition-colors">arrow_forward</span>
+            </div>
+          </a>
+
+        </div>
+
+        <!-- View all CTA -->
+        <div class="text-center mt-12 reveal">
+          <a href="services.html"
+            class="inline-flex items-center space-x-2 px-8 py-4 rounded-2xl font-bold text-sm border-2 border-orange-200 text-orange-700 hover:bg-orange-50 hover:border-orange-400 transition-all hover:scale-105">
+            <span>See All 50+ Services</span>
+            <span class="material-symbols-outlined" style="font-size:18px;">grid_view</span>
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         WHY CHOOSE US
+    ═══════════════════════════════════════ -->
+    <section class="py-24 px-6 max-w-7xl mx-auto">
+      <div class="text-center mb-16 reveal">
+        <span class="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-4"
+          style="background:#e8f0fb; color:#004080;">Why Us</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-on-surface">
+          Why Thousands <span class="gradient-text">Trust Abhi</span>
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div class="reveal reveal-delay-1 rounded-[2rem] p-8 flex items-start space-x-5"
+          style="background:linear-gradient(135deg, #fff3e0, #ffecd0);">
+          <div class="w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-md"
+            style="background:linear-gradient(135deg,#f97f06,#e05c00);">
+            <span class="material-symbols-outlined text-white text-2xl"
+              style="font-variation-settings:'FILL' 1;">bolt</span>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-on-surface mb-2">Lightning-Fast Delivery</h3>
+            <p class="text-on-surface-variant text-sm leading-relaxed">
+              Most documents processed within 24 hours. For urgent needs, our Tatkaal service ensures same-day handling
+              with zero delays.
+            </p>
+          </div>
+        </div>
+
+        <div class="reveal reveal-delay-2 rounded-[2rem] p-8 flex items-start space-x-5"
+          style="background:linear-gradient(135deg, #e8f0fb, #d4e5ff);">
+          <div class="w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-md"
+            style="background:linear-gradient(135deg,#005caa,#003d80);">
+            <span class="material-symbols-outlined text-white text-2xl"
+              style="font-variation-settings:'FILL' 1;">lock</span>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-on-surface mb-2">Secure &amp; Confidential</h3>
+            <p class="text-on-surface-variant text-sm leading-relaxed">
+              Your documents and personal information are handled with strict confidentiality. We never share your data
+              with third parties.
+            </p>
+          </div>
+        </div>
+
+        <div class="reveal reveal-delay-3 rounded-[2rem] p-8 flex items-start space-x-5"
+          style="background:linear-gradient(135deg, #e8f7ef, #ccf0dd);">
+          <div class="w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-md"
+            style="background:linear-gradient(135deg,#1a9c56,#127a40);">
+            <span class="material-symbols-outlined text-white text-2xl"
+              style="font-variation-settings:'FILL' 1;">school</span>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-on-surface mb-2">Expert-Trained Team</h3>
+            <p class="text-on-surface-variant text-sm leading-relaxed">
+              Our staff are trained in government processes and keep up-to-date with every rule change, so your
+              applications are always accurate.
+            </p>
+          </div>
+        </div>
+
+        <div class="reveal reveal-delay-4 rounded-[2rem] p-8 flex items-start space-x-5"
+          style="background:linear-gradient(135deg, #f5eeff, #e8d8ff);">
+          <div class="w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-md"
+            style="background:linear-gradient(135deg,#8930b0,#6a1a90);">
+            <span class="material-symbols-outlined text-white text-2xl"
+              style="font-variation-settings:'FILL' 1;">support_agent</span>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-on-surface mb-2">WhatsApp Updates</h3>
+            <p class="text-on-surface-variant text-sm leading-relaxed">
+              Get real-time status updates and reach us directly on WhatsApp. No calls, no waiting — just instant
+              replies from our team.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         TESTIMONIALS
+    ═══════════════════════════════════════ -->
+    <section class="py-20 px-6" style="background:linear-gradient(180deg, #edf8ff 0%, #e4f4ff 100%);">
+      <div class="max-w-7xl mx-auto">
+
+        <div class="text-center mb-14 reveal">
+          <span class="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-4"
+            style="background:#fff3e0; color:#c75e00;">Testimonials</span>
+          <h2 class="text-3xl md:text-4xl font-extrabold text-on-surface">
+            What Our Customers Say
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <div
+            class="reveal reveal-delay-1 bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-lg transition-shadow relative overflow-hidden">
+            <div class="quote-mark absolute top-4 right-6">"</div>
+            <div class="flex items-center space-x-1 mb-4">
+              <span class="text-yellow-400 text-lg">★★★★★</span>
+            </div>
+            <p class="text-on-surface-variant text-sm leading-relaxed mb-6">
+              "Got my income certificate within 24 hours. I was expecting to wait a week at the village office. Abhi's
+              team handled everything on WhatsApp — couldn't be easier."
+            </p>
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm"
+                style="background:linear-gradient(135deg,#f97f06,#e05c00);">PM</div>
+              <div>
+                <div class="font-bold text-on-surface text-sm">Priya Menon</div>
+                <div class="text-on-surface-variant text-xs">Thrissur, Kerala</div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="reveal reveal-delay-2 bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-lg transition-shadow relative overflow-hidden">
+            <div class="quote-mark absolute top-4 right-6">"</div>
+            <div class="flex items-center space-x-1 mb-4">
+              <span class="text-yellow-400 text-lg">★★★★★</span>
+            </div>
+            <p class="text-on-surface-variant text-sm leading-relaxed mb-6">
+              "PSC one-time registration done without any confusion. My documents had an error before and they fixed it
+              on the spot. Very professional and affordable service."
+            </p>
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm"
+                style="background:linear-gradient(135deg,#005caa,#003d80);">AK</div>
+              <div>
+                <div class="font-bold text-on-surface text-sm">Arun Kumar</div>
+                <div class="text-on-surface-variant text-xs">Ernakulam, Kerala</div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="reveal reveal-delay-3 bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-lg transition-shadow relative overflow-hidden">
+            <div class="quote-mark absolute top-4 right-6">"</div>
+            <div class="flex items-center space-x-1 mb-4">
+              <span class="text-yellow-400 text-lg">★★★★★</span>
+            </div>
+            <p class="text-on-surface-variant text-sm leading-relaxed mb-6">
+              "Tatkaal passport application done in 2 days. I had a flight in a week and they made it happen. The team
+              guided me through every step and even followed up after submission."
+            </p>
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm"
+                style="background:linear-gradient(135deg,#1a9c56,#127a40);">LN</div>
+              <div>
+                <div class="font-bold text-on-surface text-sm">Lakshmi Nair</div>
+                <div class="text-on-surface-variant text-xs">Kozhikode, Kerala</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         CTA BANNER
+    ═══════════════════════════════════════ -->
+    <section class="py-8 px-6">
+      <div class="max-w-7xl mx-auto">
+        <div class="cta-bg rounded-[2.5rem] px-10 py-16 md:px-20 relative overflow-hidden reveal">
+
+          <!-- Background decoration -->
+          <div class="absolute inset-0 opacity-5"
+            style="background-image: radial-gradient(circle at 70% 50%, #f97f06 0%, transparent 50%), radial-gradient(circle at 30% 80%, #005caa 0%, transparent 40%);">
+          </div>
+          <div class="absolute right-0 top-0 bottom-0 w-1/3 hidden lg:flex items-center justify-center opacity-10">
+            <span class="material-symbols-outlined text-white"
+              style="font-size: 220px; font-variation-settings:'FILL' 1;">description</span>
+          </div>
+
+          <div class="relative z-10 max-w-2xl">
+            <span class="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-5"
+              style="background:rgba(249,127,6,0.18); color:#ffb060; border: 1px solid rgba(249,127,6,0.3);">
+              Get Started Today
+            </span>
+            <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-4 leading-tight">
+              Ready to Skip the Queue?
+            </h2>
+            <p class="text-white/65 text-base leading-relaxed mb-8 max-w-lg">
+              Talk to our team on WhatsApp right now, or call us during office hours.<br />
+              <span class="text-white/45 text-sm">Monday – Saturday, 9:00 AM – 6:00 PM</span>
+            </p>
+            <div class="flex flex-wrap gap-4">
+              <a href="https://wa.me/919656917405" target="_blank"
+                class="inline-flex items-center space-x-2 px-8 py-4 rounded-xl font-bold text-sm transition-all hover:scale-105 active:scale-95"
+                style="background:#25D366; color:#fff;">
+                <span class="material-symbols-outlined" style="font-size:20px;">chat</span>
+                <span>Chat on WhatsApp</span>
+              </a>
+              <a href="tel:+919999999999"
+                class="inline-flex items-center space-x-2 px-8 py-4 rounded-xl font-bold text-sm border transition-all hover:scale-105"
+                style="border-color:rgba(255,255,255,0.25); color:#fff; background:rgba(255,255,255,0.07);">
+                <span class="material-symbols-outlined" style="font-size:20px;">call</span>
+                <span>Call Now</span>
+              </a>
+              <a href="services.html"
+                class="inline-flex items-center space-x-2 px-8 py-4 rounded-xl font-bold text-sm transition-all hover:scale-105"
+                style="background:#f97f06; color:#fff;">
+                <span>Browse Services</span>
+                <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════ -->
+  <footer class="w-full border-t border-slate-200 bg-slate-50">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 px-6 py-12 max-w-7xl mx-auto">
+      <div class="space-y-4 md:col-span-1">
+        <div class="font-extrabold text-lg text-slate-900">Abhi Online Services</div>
+        <p class="text-xs leading-6 text-slate-500">Your trusted partner for all digital government and utility needs.
+          Simplifying documentation since 2018.</p>
+        <div class="flex space-x-3 pt-1">
+          <a href="https://wa.me/919656917405" target="_blank"
+            class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold transition-transform hover:scale-110"
+            style="background:#25D366;">
+            <span class="material-symbols-outlined" style="font-size:16px;">chat</span>
+          </a>
+          <a href="tel:+919999999999"
+            class="w-9 h-9 rounded-xl flex items-center justify-center transition-transform hover:scale-110"
+            style="background:#005caa; color:#fff;">
+            <span class="material-symbols-outlined" style="font-size:16px;">call</span>
+          </a>
+        </div>
+      </div>
+      <div class="space-y-4">
+        <h4 class="font-bold text-sm text-slate-900">Services</h4>
+        <ul class="space-y-2">
+          <li><a class="text-xs text-slate-500 hover:text-orange-500 transition-all" href="services.html">Government
+              Certificates</a></li>
+          <li><a class="text-xs text-slate-500 hover:text-orange-500 transition-all" href="services.html">PAN &amp; ID
+              Cards</a></li>
+          <li><a class="text-xs text-slate-500 hover:text-orange-500 transition-all" href="services.html">Passport
+              Services</a></li>
+          <li><a class="text-xs text-slate-500 hover:text-orange-500 transition-all" href="services.html">Utility
+              Bills</a></li>
+          <li><a class="text-xs text-slate-500 hover:text-orange-500 transition-all" href="services.html">Digital
+              Printing</a></li>
+        </ul>
+      </div>
+      <div class="space-y-4">
+        <h4 class="font-bold text-sm text-slate-900">Quick Links</h4>
+        <ul class="space-y-2">
+          <li><a class="text-xs text-slate-500 hover:text-orange-500 transition-all" href="#">Track Your Application</a>
+          </li>
+          <li><a class="text-xs text-slate-500 hover:text-orange-500 transition-all" href="#">Government Portals</a>
+          </li>
+          <li><a class="text-xs text-slate-500 hover:text-orange-500 transition-all" href="#">About Us</a></li>
+          <li><a class="text-xs text-slate-500 hover:text-orange-500 transition-all" href="#">FAQs</a></li>
+        </ul>
+      </div>
+      <div class="space-y-4">
+        <h4 class="font-bold text-sm text-slate-900">Contact</h4>
+        <ul class="space-y-3">
+          <li class="flex items-start space-x-2 text-xs text-slate-500">
+            <span class="material-symbols-outlined text-orange-400 mt-0.5" style="font-size:14px;">location_on</span>
+            <span>123 Main Road, Thrissur,<br />Kerala – 680001</span>
+          </li>
+          <li class="flex items-center space-x-2 text-xs text-slate-500">
+            <span class="material-symbols-outlined text-orange-400" style="font-size:14px;">call</span>
+            <a href="tel:+919999999999" class="hover:text-orange-500 transition-all">+91 99999 99999</a>
+          </li>
+          <li class="flex items-center space-x-2 text-xs text-slate-500">
+            <span class="material-symbols-outlined text-orange-400" style="font-size:14px;">schedule</span>
+            <span>Mon–Sat: 9 AM – 6 PM</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="px-6 py-6 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-3">
+      <p class="text-xs text-slate-400">© 2024 Abhi Online Services. All Rights Reserved.</p>
+      <div class="flex space-x-4 text-xs text-slate-400">
+        <a href="#" class="hover:text-orange-500 transition-all">Privacy Policy</a>
+        <a href="#" class="hover:text-orange-500 transition-all">Terms of Service</a>
+        <a href="#" class="hover:text-orange-500 transition-all">Refund Policy</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════
+       SCRIPTS
+  ═══════════════════════════════════════ -->
+  <script type="module">
+    import { initHero3D } from './hero3d.js';
+    initHero3D('hero-canvas', 'hero-container');
+  </script>
+
+  <script>
+    // Scroll-reveal using IntersectionObserver
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+
+</html>

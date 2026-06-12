@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Services | Abhi Online Services</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#edf8ff",
+            "surface-container-low": "#dff4ff",
+            "surface-container": "#d1ecfb",
+            "surface-container-high": "#c9e7f6",
+            "surface-container-highest": "#c2e2f2",
+            "on-surface": "#1c313b",
+            "on-surface-variant": "#495f69",
+            "primary": "#914700",
+            "primary-container": "#f97f06",
+            "on-primary-container": "#3b1900",
+            "secondary": "#005caa",
+            "secondary-container": "#b9d3ff",
+            "tertiary": "#8930b0",
+            "tertiary-container": "#e092ff",
+            "on-tertiary": "#ffedff",
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* ── Search dropdown ── */
+    #search-dropdown {
+      max-height: 420px;
+      overflow-y: auto;
+    }
+
+    #search-dropdown::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    #search-dropdown::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    #search-dropdown::-webkit-scrollbar-thumb {
+      background: #f97f06;
+      border-radius: 9999px;
+    }
+
+    mark {
+      background: #fff3e0;
+      color: #c75e00;
+      border-radius: 3px;
+      padding: 0 2px;
+    }
+
+    /* ── Category filter pills ── */
+    .cat-pill {
+      transition: all 0.2s;
+    }
+
+    .cat-pill.active {
+      background: #f97f06;
+      color: #fff;
+      border-color: #f97f06;
+    }
+
+    /* ── Service card ── */
+    .service-card {
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .service-card:hover {
+      transform: translateY(-3px);
+    }
+
+    /* ── Modal backdrop + panel ── */
+    #svc-modal {
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    #svc-modal.open {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    #modal-panel {
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    #svc-modal.open #modal-panel {
+      transform: translateX(0);
+    }
+
+    /* ── Tabs ── */
+    .tab-btn {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #64748b;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      color: #f97f06;
+      border-bottom-color: #f97f06;
+    }
+
+    /* ── Steps ── */
+    .step-dot::before {
+      content: '';
+      position: absolute;
+      left: 19px;
+      top: 40px;
+      bottom: -8px;
+      width: 2px;
+      background: linear-gradient(to bottom, #f97f06, #dbeeff);
+    }
+
+    .step-dot:last-child::before {
+      display: none;
+    }
+
+    /* ── Scrollbar for modal content ── */
+    #modal-body::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    #modal-body::-webkit-scrollbar-thumb {
+      background: #e2e8f0;
+      border-radius: 9999px;
+    }
+
+    /* ── Gradient text ── */
+    .gradient-text {
+      background: linear-gradient(135deg, #f97f06 0%, #e05c00 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  </style>
+</head>
+
+<body class="bg-surface text-on-surface">
+
+  <!-- ═══════════════════════ NAV ═══════════════════════ -->
+  <header class="fixed top-0 w-full z-50 bg-white/85 backdrop-blur-md border-b border-slate-100 shadow-sm">
+    <nav class="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+      <a href="index.html" class="text-xl font-black tracking-tighter text-orange-800">Abhi Online Services</a>
+      <div class="hidden md:flex items-center space-x-8 font-medium text-sm">
+        <a class="text-slate-600 hover:text-orange-600 transition-colors" href="index.html">Home</a>
+        <a class="text-orange-700 font-bold border-b-2 border-orange-500 pb-1" href="services.html">Services</a>
+        <a class="text-slate-600 hover:text-orange-600 transition-colors" href="#">Track Status</a>
+        <a class="text-slate-600 hover:text-orange-600 transition-colors" href="#">Malayalam</a>
+      </div>
+      <div class="flex items-center space-x-3">
+        <a href="https://wa.me/919656917405" target="_blank"
+          class="hidden sm:flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold border border-green-200 text-green-700 hover:bg-green-50 transition-all">
+          <span class="material-symbols-outlined" style="font-size:16px;">chat</span><span>WhatsApp</span>
+        </a>
+        <button
+          class="bg-primary-container text-on-primary-container px-6 py-2 rounded-xl font-bold hover:bg-orange-500 transition-all active:scale-95"
+          style="color:#fff;">
+          Contact Us
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ═══════════════════════ HERO / SEARCH ═══════════════════════ -->
+  <section style="background:linear-gradient(135deg,#080f1e 0%,#0e1c36 55%,#091528 100%); padding-top:72px;">
+    <div class="max-w-4xl mx-auto px-6 py-16 text-center">
+
+      <div
+        class="inline-flex items-center space-x-2 mb-5 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest border"
+        style="background:rgba(249,127,6,0.12); border-color:rgba(249,127,6,0.3); color:#ffb060;">
+        <span class="material-symbols-outlined" style="font-size:14px;">apps</span>
+        <span>50+ Services Available</span>
+      </div>
+
+      <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-3 leading-tight">
+        Find Your <span style="color:#f97f06;">Service</span>
+      </h1>
+      <p class="mb-10 text-sm md:text-base" style="color:rgba(255,255,255,0.55);">
+        Government certificates, utility payments, digital documents — all in one place.
+      </p>
+
+      <!-- ── Live Search ── -->
+      <div class="relative max-w-2xl mx-auto" id="search-wrapper">
+        <div class="flex items-center bg-white rounded-2xl shadow-2xl overflow-hidden"
+          style="padding: 4px 4px 4px 18px;">
+          <span class="material-symbols-outlined text-slate-400 mr-2 flex-shrink-0">search</span>
+          <input id="main-search" type="text" autocomplete="off"
+            class="flex-1 py-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none bg-transparent"
+            placeholder="Search PAN Card, Income Certificate, PSC Registration…" />
+          <button onclick="clearSearch()" id="clear-btn"
+            class="hidden p-2 rounded-xl text-slate-400 hover:text-slate-700 transition-colors mr-1">
+            <span class="material-symbols-outlined" style="font-size:18px;">close</span>
+          </button>
+          <button class="px-6 py-3 rounded-xl font-bold text-sm text-white flex items-center space-x-2"
+            style="background:#f97f06;">
+            <span class="hidden sm:inline">Search</span>
+            <span class="material-symbols-outlined" style="font-size:18px;">search</span>
+          </button>
+        </div>
+
+        <!-- Live results dropdown -->
+        <div id="search-dropdown"
+          class="hidden absolute top-full left-0 right-0 bg-white rounded-2xl shadow-2xl mt-2 z-50 border border-slate-100 overflow-hidden">
+        </div>
+      </div>
+
+      <!-- Category chips -->
+      <div class="flex flex-wrap justify-center gap-2 mt-7" id="cat-chips">
+        <button onclick="filterCat('all')"
+          class="cat-pill active px-4 py-2 rounded-full text-xs font-bold border border-white/20 text-white"
+          data-cat="all">All Services</button>
+        <button onclick="filterCat('Government Certificates')"
+          class="cat-pill px-4 py-2 rounded-full text-xs font-bold border border-white/20 text-white/70"
+          data-cat="Government Certificates">Government Certificates</button>
+        <button onclick="filterCat('Digital Documents')"
+          class="cat-pill px-4 py-2 rounded-full text-xs font-bold border border-white/20 text-white/70"
+          data-cat="Digital Documents">Digital Documents</button>
+        <button onclick="filterCat('Utility & Bills')"
+          class="cat-pill px-4 py-2 rounded-full text-xs font-bold border border-white/20 text-white/70"
+          data-cat="Utility & Bills">Utility &amp; Bills</button>
+        <button onclick="filterCat('Digital Printing')"
+          class="cat-pill px-4 py-2 rounded-full text-xs font-bold border border-white/20 text-white/70"
+          data-cat="Digital Printing">Digital Printing</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ SERVICE GRID ═══════════════════════ -->
+  <main class="max-w-7xl mx-auto px-6 py-14 pb-24">
+
+    <div class="flex items-end justify-between mb-8">
+      <div>
+        <h2 class="text-2xl font-extrabold text-on-surface" id="section-title">All Services</h2>
+        <p class="text-on-surface-variant text-sm mt-1" id="section-count"></p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6" id="service-grid"></div>
+
+    <!-- Empty state -->
+    <div id="no-results" class="hidden text-center py-20">
+      <span class="material-symbols-outlined text-5xl text-slate-300">search_off</span>
+      <p class="text-slate-400 mt-3 font-medium">No services found. Try a different search.</p>
+    </div>
+
+  </main>
+
+  <!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+  <footer class="border-t border-slate-200 bg-slate-50">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 px-6 py-12 max-w-7xl mx-auto">
+      <div class="space-y-4">
+        <div class="font-extrabold text-lg text-slate-900">Abhi Online Services</div>
+        <p class="text-xs leading-6 text-slate-500">Your trusted partner for digital government and utility needs since
+          2018.</p>
+      </div>
+      <div class="space-y-4">
+        <h4 class="font-bold text-sm text-slate-900">Quick Links</h4>
+        <ul class="space-y-2">
+          <li><a class="text-xs text-slate-500 hover:text-orange-500 transition-all" href="index.html">Home</a></li>
+          <li><a class="text-xs text-slate-500 hover:text-orange-500 transition-all" href="#">Track Status</a></li>
+          <li><a class="text-xs text-slate-500 hover:text-orange-500 transition-all" href="#">Support</a></li>
+        </ul>
+      </div>
+      <div class="space-y-4">
+        <h4 class="font-bold text-sm text-slate-900">Legal</h4>
+        <ul class="space-y-2">
+          <li><a class="text-xs text-slate-500 hover:text-orange-500 transition-all" href="#">Privacy Policy</a></li>
+          <li><a class="text-xs text-slate-500 hover:text-orange-500 transition-all" href="#">Terms of Service</a></li>
+          <li><a class="text-xs text-slate-500 hover:text-orange-500 transition-all" href="#">Refund Policy</a></li>
+        </ul>
+      </div>
+      <div class="space-y-4">
+        <h4 class="font-bold text-sm text-slate-900">Contact</h4>
+        <ul class="space-y-2 text-xs text-slate-500">
+          <li class="flex items-center space-x-2">
+            <span class="material-symbols-outlined text-orange-400" style="font-size:14px;">call</span>
+            <a href="tel:+919999999999" class="hover:text-orange-500">+91 99999 99999</a>
+          </li>
+          <li class="flex items-center space-x-2">
+            <span class="material-symbols-outlined text-orange-400" style="font-size:14px;">schedule</span>
+            <span>Mon–Sat: 9 AM – 6 PM</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="px-6 py-5 border-t border-slate-100 text-center">
+      <p class="text-xs text-slate-400">© 2024 Abhi Online Services. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════ SERVICE MODAL ═══════════════════════ -->
+  <div id="svc-modal" class="fixed inset-0 z-[200] flex justify-end">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/45 backdrop-blur-sm" onclick="closeModal()"></div>
+
+    <!-- Panel -->
+    <div id="modal-panel" class="relative flex flex-col bg-white w-full max-w-2xl shadow-2xl overflow-hidden">
+
+      <!-- Header -->
+      <div class="flex items-start justify-between p-6 border-b border-slate-100 flex-shrink-0">
+        <div class="flex items-center space-x-4">
+          <div id="modal-icon-wrap" class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0">
+            <span id="modal-icon" class="material-symbols-outlined text-3xl"
+              style="font-variation-settings:'FILL' 1;"></span>
+          </div>
+          <div>
+            <h2 id="modal-name" class="text-xl font-extrabold text-slate-900"></h2>
+            <p id="modal-ml" class="text-sm text-slate-400 mt-0.5"></p>
+          </div>
+        </div>
+        <button onclick="closeModal()"
+          class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all flex-shrink-0 ml-3">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <!-- Quick info bar -->
+      <div class="flex items-center gap-4 px-6 py-3 bg-slate-50 border-b border-slate-100 flex-shrink-0 flex-wrap">
+        <div class="flex items-center space-x-1.5 text-xs font-semibold text-slate-600">
+          <span class="material-symbols-outlined text-orange-500" style="font-size:15px;">schedule</span>
+          <span id="modal-time"></span>
+        </div>
+        <div class="w-px h-4 bg-slate-300"></div>
+        <div class="flex items-center space-x-1.5 text-xs font-semibold text-slate-600">
+          <span class="material-symbols-outlined text-orange-500" style="font-size:15px;">currency_rupee</span>
+          <span id="modal-fee"></span>
+        </div>
+        <div class="w-px h-4 bg-slate-300"></div>
+        <div class="flex items-center space-x-1.5 text-xs font-semibold text-slate-500">
+          <span class="material-symbols-outlined" style="font-size:15px;">folder</span>
+          <span id="modal-cat"></span>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex overflow-x-auto border-b border-slate-100 flex-shrink-0 px-2">
+        <button class="tab-btn active" onclick="switchTab('overview',this)">Overview</button>
+        <button class="tab-btn" onclick="switchTab('steps',this)">How to Apply</button>
+        <button class="tab-btn" onclick="switchTab('documents',this)">Documents Needed</button>
+        <button class="tab-btn" onclick="switchTab('payment',this)">Fees &amp; Payment</button>
+      </div>
+
+      <!-- Tab body -->
+      <div id="modal-body" class="flex-1 overflow-y-auto p-6">
+
+        <!-- Overview -->
+        <div id="tab-overview">
+          <p id="modal-overview" class="text-slate-600 text-sm leading-relaxed"></p>
+          <div id="modal-official-wrap" class="mt-6 p-4 rounded-2xl border border-orange-100 bg-orange-50">
+            <p class="text-xs font-bold text-orange-700 uppercase tracking-widest mb-2">Official Government Portal</p>
+            <a id="modal-official-link" href="#" target="_blank" rel="noopener"
+              class="flex items-center justify-between p-3 bg-white rounded-xl border border-orange-100 hover:border-orange-300 transition-all group">
+              <div class="flex items-center space-x-3">
+                <span class="material-symbols-outlined text-orange-500"
+                  style="font-variation-settings:'FILL' 1; font-size:20px;">language</span>
+                <div>
+                  <p id="modal-site-label" class="text-sm font-bold text-slate-800"></p>
+                  <p id="modal-site-url" class="text-xs text-slate-400 truncate max-w-[280px]"></p>
+                </div>
+              </div>
+              <span
+                class="material-symbols-outlined text-orange-400 group-hover:translate-x-1 transition-transform">open_in_new</span>
+            </a>
+            <!-- Second official site if present -->
+            <a id="modal-official-link2" href="#" target="_blank" rel="noopener"
+              class="hidden mt-2 flex items-center justify-between p-3 bg-white rounded-xl border border-orange-100 hover:border-orange-300 transition-all group">
+              <div class="flex items-center space-x-3">
+                <span class="material-symbols-outlined text-orange-500"
+                  style="font-variation-settings:'FILL' 1; font-size:20px;">language</span>
+                <div>
+                  <p id="modal-site-label2" class="text-sm font-bold text-slate-800"></p>
+                  <p id="modal-site-url2" class="text-xs text-slate-400 truncate max-w-[280px]"></p>
+                </div>
+              </div>
+              <span
+                class="material-symbols-outlined text-orange-400 group-hover:translate-x-1 transition-transform">open_in_new</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- How to Apply -->
+        <div id="tab-steps" class="hidden">
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5">Step-by-step process</p>
+          <div id="modal-steps" class="space-y-1"></div>
+        </div>
+
+        <!-- Documents -->
+        <div id="tab-documents" class="hidden">
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5">Required documents</p>
+          <ul id="modal-docs" class="space-y-3"></ul>
+          <div class="mt-6 p-4 rounded-2xl bg-blue-50 border border-blue-100">
+            <p class="text-xs font-bold text-blue-700 mb-1">💡 Tip</p>
+            <p class="text-xs text-blue-600 leading-relaxed">Keep clear, readable photos of all documents ready. Aadhaar
+              must be self-attested (sign on front and back).</p>
+          </div>
+        </div>
+
+        <!-- Fees & Payment -->
+        <div id="tab-payment" class="hidden">
+          <div id="modal-payment-content" class="space-y-4"></div>
+        </div>
+
+      </div>
+
+      <!-- Footer CTAs -->
+      <div class="p-5 border-t border-slate-100 flex flex-col sm:flex-row gap-3 flex-shrink-0 bg-white">
+        <a id="modal-apply-btn" href="#" target="_blank" rel="noopener"
+          class="flex-1 flex items-center justify-center space-x-2 py-3.5 rounded-xl font-bold text-sm border-2 border-orange-300 text-orange-700 hover:bg-orange-50 transition-all">
+          <span class="material-symbols-outlined" style="font-size:18px;">open_in_new</span>
+          <span>Apply on Official Site</span>
+        </a>
+        <a href="https://wa.me/919656917405" target="_blank"
+          class="flex-1 flex items-center justify-center space-x-2 py-3.5 rounded-xl font-bold text-sm text-white transition-all hover:scale-105"
+          style="background:#25D366;">
+          <span class="material-symbols-outlined" style="font-size:18px;">chat</span>
+          <span>We'll Handle It For You</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ SCRIPTS ═══════════════════════ -->
+  <script>
+    /* ============================================================
+       SERVICE DATA
+       To add a new service: copy one object and update the fields.
+    ============================================================ */
+    const SERVICES = [
+      {
+        id: 'income-certificate',
+        name: 'Income Certificate',
+        malayalam: 'വരുമാന സർട്ടിഫിക്കറ്റ്',
+        category: 'Government Certificates',
+        icon: 'payments',
+        colors: { bg: '#e8f0fb', icon: '#005caa', tag: '#004080', tagBg: '#dbeeff' },
+        description: 'Required for scholarships, government schemes, and bank loans.',
+        officialSite: 'https://edistrict.kerala.gov.in',
+        officialSiteLabel: 'Kerala e-District Portal',
+        fee: '₹15 govt fee + ₹100–150 service charge',
+        processingTime: '24–48 hours',
+        buttonLabel: 'Apply Now',
+        keywords: ['income', 'certificate', 'scholarship', 'welfare', 'akshaya', 'e-district', 'village office'],
+        overview: 'An Income Certificate is an official document issued by the government stating the total annual income of an individual and their family. Commonly required for scholarships, government welfare schemes, bank loans, and reserved quota admissions. Issued by the village office through Kerala\'s e-District portal.',
+        documents: [
+          'Aadhaar Card (original + self-attested copy)',
+          'Ration Card (BPL / APL)',
+          'Latest electricity or water bill',
+          'Bank passbook or statement (last 3 months)',
+          'Salary certificate or payslip (for employed persons)',
+          'Self-declaration letter regarding annual income',
+          'Passport size photo (2 copies)',
+        ],
+        steps: [
+          { title: 'WhatsApp us your documents', desc: 'Send clear photos of Aadhaar, ration card, and income proof to our WhatsApp number.' },
+          { title: 'Application prepared', desc: 'Our team fills the e-District Kerala application form accurately with all your details.' },
+          { title: 'Village officer / Akshaya verification', desc: 'The form is submitted to the designated village officer for verification and digital signature.' },
+          { title: 'Certificate delivered', desc: 'Digitally signed Income Certificate sent to your WhatsApp and email within 24–48 hours.' },
+        ],
+        payment: {
+          govFee: '₹15 (government portal fee)',
+          ourCharge: '₹100 – ₹150 (service charge)',
+          methods: ['UPI — Google Pay / PhonePe / Paytm', 'Cash at our centre', 'Bank transfer'],
+          note: 'Pay only after you receive your certificate.',
+        },
+      },
+      {
+        id: 'caste-certificate',
+        name: 'Caste Certificate',
+        malayalam: 'ജാതി സർട്ടിഫിക്കറ്റ്',
+        category: 'Government Certificates',
+        icon: 'badge',
+        colors: { bg: '#f5eeff', icon: '#8930b0', tag: '#6a1a90', tagBg: '#f0e6ff' },
+        description: 'Official certificate certifying SC/ST/OBC status for reservation benefits.',
+        officialSite: 'https://edistrict.kerala.gov.in',
+        officialSiteLabel: 'Kerala e-District Portal',
+        fee: '₹15 govt fee + ₹150–200 service charge',
+        processingTime: '2–4 working days',
+        buttonLabel: 'Apply Now',
+        keywords: ['caste', 'certificate', 'sc', 'st', 'obc', 'community', 'reservation', 'backward class'],
+        overview: 'A Caste Certificate certifies that a person belongs to a Scheduled Caste (SC), Scheduled Tribe (ST), or Other Backward Community (OBC). It is essential for education reservations, government job applications, and various welfare scheme benefits.',
+        documents: [
+          'Aadhaar Card (original + copy)',
+          'Ration Card (showing caste details)',
+          'Previous caste certificate (if available)',
+          'SSLC / School Transfer Certificate',
+          'Revenue records or nativity certificate',
+          'Passport size photo (2 copies)',
+        ],
+        steps: [
+          { title: 'Submit your documents', desc: 'Share Aadhaar, ration card, and school records via WhatsApp or visit our centre.' },
+          { title: 'Application prepared', desc: 'We fill and submit the caste certificate application on the Kerala e-District portal.' },
+          { title: 'Village officer / Tahsildar verification', desc: 'A field verification may be conducted by the revenue department. We guide you through the process.' },
+          { title: 'Certificate issued', desc: 'Verified certificate available within 2–4 working days and sent to you digitally.' },
+        ],
+        payment: {
+          govFee: '₹15 (government fee)',
+          ourCharge: '₹150 – ₹200 (service charge)',
+          methods: ['UPI — Google Pay / PhonePe / Paytm', 'Cash at our centre', 'Bank transfer'],
+          note: 'Pay only after the certificate is issued.',
+        },
+      },
+      {
+        id: 'nativity-certificate',
+        name: 'Nativity / Residence Certificate',
+        malayalam: 'ജനന / താമസ സർട്ടിഫിക്കറ്റ്',
+        category: 'Government Certificates',
+        icon: 'home_pin',
+        colors: { bg: '#e8f7ef', icon: '#1a9c56', tag: '#0d6b38', tagBg: '#d4f1e4' },
+        description: 'Proof of permanent residence in Kerala for education and employment.',
+        officialSite: 'https://edistrict.kerala.gov.in',
+        officialSiteLabel: 'Kerala e-District Portal',
+        fee: '₹15 govt fee + ₹100–150 service charge',
+        processingTime: '1–3 working days',
+        buttonLabel: 'Apply Now',
+        keywords: ['nativity', 'residence', 'domicile', 'address proof', 'kerala resident', 'local certificate'],
+        overview: 'A Nativity / Residence Certificate is official proof that a person is a permanent resident of Kerala. It is required for educational admissions under the state quota, government jobs, and various state welfare schemes.',
+        documents: [
+          'Aadhaar Card',
+          'Ration Card or voter ID showing current address',
+          'Any utility bill (electricity / water) at the address',
+          'Passport size photo',
+        ],
+        steps: [
+          { title: 'Share address documents', desc: 'Send Aadhaar and utility bill showing your current Kerala address via WhatsApp.' },
+          { title: 'Application submitted', desc: 'We submit the application on the e-District portal on your behalf.' },
+          { title: 'Village officer approval', desc: 'The village officer verifies your residence and approves the certificate.' },
+          { title: 'Certificate delivered', desc: 'Digitally signed certificate sent within 1–3 working days.' },
+        ],
+        payment: {
+          govFee: '₹15 (government fee)',
+          ourCharge: '₹100 – ₹150 (service charge)',
+          methods: ['UPI — Google Pay / PhonePe / Paytm', 'Cash at our centre'],
+          note: 'Pay after certificate is received.',
+        },
+      },
+      {
+        id: 'pan-card',
+        name: 'PAN Card',
+        malayalam: 'പാൻ കാർഡ് സേവനങ്ങൾ',
+        category: 'Digital Documents',
+        icon: 'contact_emergency',
+        colors: { bg: '#fff3e0', icon: '#c75e00', tag: '#c75e00', tagBg: '#fff3e0' },
+        description: 'New PAN application, correction, reprint, and lost card replacement.',
+        officialSite: 'https://www.onlineservices.nsdl.com/paam/endUserRegisterContact.html',
+        officialSiteLabel: 'NSDL PAN Online Portal',
+        officialSite2: 'https://www.utiitsl.com/UTIITSL_SITE/pan/',
+        officialSiteLabel2: 'UTI PAN Portal',
+        fee: '₹107 (Indian address) / ₹1,017 (foreign)',
+        processingTime: '7–15 working days',
+        buttonLabel: 'Apply Now',
+        keywords: ['pan', 'pan card', 'permanent account number', 'tax', 'income tax', 'nsdl', 'uti', 'id card', 'financial'],
+        overview: 'A Permanent Account Number (PAN) card is a 10-digit alphanumeric identifier issued by the Income Tax Department. Mandatory for filing income tax returns, opening bank accounts, and all financial transactions above ₹50,000. We handle new applications, corrections, reprints, and replacements.',
+        documents: [
+          'Proof of Identity: Aadhaar / Voter ID / Passport / Driving Licence',
+          'Proof of Address: Aadhaar / Utility bill / Bank statement',
+          'Proof of Date of Birth: Birth certificate / SSLC / Aadhaar',
+          'Passport size photo (2 copies — white background)',
+          'For correction: Existing PAN card + supporting proof for the correction',
+        ],
+        steps: [
+          { title: 'Choose your application type', desc: 'New PAN / correction / reprint / duplicate. Tell us what you need.' },
+          { title: 'Documents collected', desc: 'Share clear photos of identity, address, and date-of-birth proof via WhatsApp.' },
+          { title: 'Form 49A submitted', desc: 'We complete the application on NSDL / UTI portal, upload documents, and make payment.' },
+          { title: 'Acknowledgement shared', desc: 'We send your 15-digit acknowledgement number immediately for status tracking.' },
+          { title: 'PAN card delivered', desc: 'Physical card dispatched to your registered address. e-PAN available within 48 hours of approval.' },
+        ],
+        payment: {
+          govFee: '₹107 (India) or ₹1,017 (foreign address) — paid to NSDL / UTI',
+          ourCharge: '₹100 – ₹150 (service charge)',
+          methods: ['UPI — Google Pay / PhonePe / Paytm', 'Cash at our centre', 'Online payment link'],
+          note: 'Government fee is paid directly to NSDL/UTI. Our service charge is separate.',
+        },
+      },
+      {
+        id: 'passport',
+        name: 'Passport Services',
+        malayalam: 'പാസ്പോർട്ട് സേവനങ്ങൾ',
+        category: 'Digital Documents',
+        icon: 'flight_takeoff',
+        colors: { bg: '#e8f0fb', icon: '#005caa', tag: '#004080', tagBg: '#dbeeff' },
+        description: 'Fresh applications, renewals, Tatkaal, and Police Clearance Certificates.',
+        officialSite: 'https://www.passportindia.gov.in/',
+        officialSiteLabel: 'Passport Seva Portal',
+        fee: '₹1,500 (fresh) / ₹2,000 (Tatkaal)',
+        processingTime: '7–30 days (Tatkaal: 1–3 days)',
+        buttonLabel: 'Book Now',
+        keywords: ['passport', 'tatkaal', 'renewal', 'police clearance', 'pcc', 'travel', 'visa', 'passport seva', 'international'],
+        overview: 'A passport is the primary travel document for international travel and also serves as proof of identity and citizenship. We assist with fresh passport applications, renewals, Tatkaal (urgent) applications, and Police Clearance Certificates (PCC) with complete guidance for your PSK appointment.',
+        documents: [
+          'Aadhaar Card (mandatory)',
+          'Proof of Date of Birth: Birth certificate / SSLC certificate',
+          'Proof of Address: Aadhaar / Voter ID / Utility bill',
+          'Old passport (for renewal or reissue)',
+          'Passport size photos (4 copies — 2×2 inch, white background)',
+          'Affidavit of name change (if name differs across documents)',
+          'PCC: Police No-Objection Certificate (for Police Clearance Certificate)',
+        ],
+        steps: [
+          { title: 'Application type confirmed', desc: 'We determine if you need fresh, renewal, Tatkaal or PCC and guide you accordingly.' },
+          { title: 'Online application (Passport Seva)', desc: 'We complete your application on passportindia.gov.in and select the nearest PSK.' },
+          { title: 'Appointment booked', desc: 'We book the earliest available slot at your nearest Passport Seva Kendra (PSK) or POPSK.' },
+          { title: 'Pre-appointment document checklist', desc: 'We provide a detailed checklist of originals to carry to your appointment.' },
+          { title: 'Post-appointment follow-up', desc: 'We guide you through police verification and track your application status.' },
+          { title: 'Passport dispatched', desc: 'Dispatched by Speed Post to your registered address within the processing timeframe.' },
+        ],
+        payment: {
+          govFee: '₹1,500–₹3,500 (paid at PSK during appointment)',
+          ourCharge: '₹300 – ₹500 (application + appointment service charge)',
+          methods: ['UPI — Google Pay / PhonePe / Paytm', 'Cash at our centre'],
+          note: 'Government fee is paid separately at the PSK. Tatkaal fee is ₹2,000 extra.',
+        },
+      },
+      {
+        id: 'kseb-bill',
+        name: 'Electricity Bills (KSEB)',
+        malayalam: 'വൈദ്യുതി ബില്ലുകൾ',
+        category: 'Utility & Bills',
+        icon: 'electric_bolt',
+        colors: { bg: '#fff3e0', icon: '#f97f06', tag: '#c75e00', tagBg: '#fff3e0' },
+        description: 'Instant KSEB electricity bill payment with same-day receipt.',
+        officialSite: 'https://wss.kseb.in/selfservices/',
+        officialSiteLabel: 'KSEB Online Payment Portal',
+        fee: 'Exact bill amount + ₹20–30 convenience charge',
+        processingTime: 'Instant',
+        buttonLabel: 'Pay Bill',
+        keywords: ['kseb', 'electricity', 'electric', 'bill', 'payment', 'power', 'current bill', 'light bill', 'unit charge'],
+        overview: 'Pay your KSEB electricity bills instantly without standing in queue. We accept payments for domestic, commercial, and industrial connections. Payment is confirmed on the KSEB portal and an official receipt is issued immediately.',
+        documents: [
+          'KSEB Consumer Number (printed on your electricity bill)',
+          'Previous electricity bill (for reference — optional)',
+        ],
+        steps: [
+          { title: 'Share your consumer number', desc: 'Tell us your KSEB consumer number or show us your electricity bill.' },
+          { title: 'Bill amount verified', desc: 'We check your current outstanding amount on the KSEB portal and confirm it with you.' },
+          { title: 'Payment processed', desc: 'You pay us the exact bill amount. We make the payment on the KSEB portal immediately.' },
+          { title: 'Receipt issued', desc: 'Official KSEB payment receipt is printed and handed to you on the spot.' },
+        ],
+        payment: {
+          govFee: 'Exact electricity bill amount as per KSEB',
+          ourCharge: '₹20 – ₹30 (convenience charge)',
+          methods: ['Cash', 'UPI — Google Pay / PhonePe / Paytm', 'Debit / Credit Card'],
+          note: 'No hidden charges. We only add a small convenience fee.',
+        },
+      },
+      {
+        id: 'psc-registration',
+        name: 'PSC One-Time Registration',
+        malayalam: 'പിഎസ്സി ഒടിആർ രജിസ്ട്രേഷൻ',
+        category: 'Government Certificates',
+        icon: 'work_history',
+        colors: { bg: '#f5eeff', icon: '#8930b0', tag: '#6a1a90', tagBg: '#f0e6ff' },
+        description: 'Kerala PSC OTR registration and exam application assistance.',
+        officialSite: 'https://www.keralapsc.gov.in/',
+        officialSiteLabel: 'Kerala PSC Official Portal',
+        fee: '₹100 (OBC/General) / ₹25 (SC/ST)',
+        processingTime: 'Same day',
+        buttonLabel: 'Register',
+        keywords: ['psc', 'kerala psc', 'public service commission', 'government job', 'exam', 'otr', 'one time registration', 'competitive exam', 'notification'],
+        overview: 'Kerala PSC One-Time Registration (OTR) is mandatory before applying for any Kerala PSC examination. It is a one-time process where you register with your personal, educational, and community details. Once registered, you can apply for any number of PSC notifications using the same profile.',
+        documents: [
+          'Aadhaar Card',
+          'SSLC (10th) Certificate and Mark List',
+          'Plus Two (12th) Certificate and Mark List',
+          'Degree / higher qualification certificates and mark lists',
+          'Community Certificate (for SC/ST/OBC)',
+          'Passport size photo (recent, white background, JPEG format)',
+          'Valid mobile number and email ID',
+          'Signature image (black ink on white paper)',
+        ],
+        steps: [
+          { title: 'Gather all educational certificates', desc: 'Collect SSLC, Plus Two, degree certificates, mark lists, community certificate, and Aadhaar.' },
+          { title: 'Profile created on PSC portal', desc: 'Our team creates your one-time registration profile with accurate details on the Kerala PSC portal.' },
+          { title: 'Documents and photos uploaded', desc: 'All certificates, your photo, and signature image are uploaded and verified against originals.' },
+          { title: 'Registration number issued', desc: 'Your PSC Registration Number is generated and shared. You can now apply for any PSC notification.' },
+        ],
+        payment: {
+          govFee: '₹100 (General/OBC), ₹25 (SC/ST) — paid to PSC portal',
+          ourCharge: '₹150 – ₹200 (service charge)',
+          methods: ['UPI — Google Pay / PhonePe / Paytm', 'Cash at our centre', 'Online payment link'],
+          note: 'We also assist with individual exam fee payment for specific PSC notifications.',
+        },
+      },
+      {
+        id: 'aadhaar-update',
+        name: 'Aadhaar Card Update',
+        malayalam: 'ആധാർ കാർഡ് അപ്ഡേറ്റ്',
+        category: 'Digital Documents',
+        icon: 'fingerprint',
+        colors: { bg: '#fff3e0', icon: '#f97f06', tag: '#c75e00', tagBg: '#fff3e0' },
+        description: 'Update address, mobile number, name, and biometric corrections.',
+        officialSite: 'https://myaadhaar.uidai.gov.in/',
+        officialSiteLabel: 'myAadhaar Portal (UIDAI)',
+        fee: '₹50 (address / demographic update)',
+        processingTime: '3–7 working days',
+        buttonLabel: 'Update Now',
+        keywords: ['aadhaar', 'aadhar', 'uid', 'uidai', 'update', 'address change', 'mobile update', 'name correction', 'biometric'],
+        overview: 'Update your Aadhaar card details including address, name, date of birth, mobile number, and email. Biometric updates (fingerprint and iris) are done at Aadhaar Enrolment Centres. Online updates for address and demographics can be done via myAadhaar portal.',
+        documents: [
+          'Existing Aadhaar card',
+          'For address update: Utility bill / Bank statement / Ration card at new address',
+          'For name change: Official gazette notification or marriage certificate',
+          'For mobile update: OTP sent to registered mobile (or visit enrolment centre)',
+          'For date of birth: SSLC certificate / Birth certificate',
+        ],
+        steps: [
+          { title: 'Identify what needs updating', desc: 'Tell us what detail needs to be changed — address, name, mobile, or biometrics.' },
+          { title: 'Supporting document prepared', desc: 'We confirm which supporting document is acceptable for the specific update you need.' },
+          { title: 'Online update submitted', desc: 'We submit the update request on myAadhaar portal (or guide you to the nearest enrolment centre for biometrics).' },
+          { title: 'Update confirmed', desc: 'UIDAI processes the update within 3–7 days. Updated Aadhaar downloadable from the portal.' },
+        ],
+        payment: {
+          govFee: '₹50 per demographic update',
+          ourCharge: '₹80 – ₹120 (service charge)',
+          methods: ['UPI — Google Pay / PhonePe / Paytm', 'Cash at our centre'],
+          note: 'Mobile number linked OTP updates can sometimes be done for free on myAadhaar portal.',
+        },
+      },
+      {
+        id: 'digital-printing',
+        name: 'Digital Printing & Photostat',
+        malayalam: 'ഡിജിറ്റൽ പ്രിന്റിംഗ്',
+        category: 'Digital Printing',
+        icon: 'print',
+        colors: { bg: '#e8f0fb', icon: '#005caa', tag: '#004080', tagBg: '#dbeeff' },
+        description: 'High-quality laser printing, photostat, and DTP services.',
+        officialSite: null,
+        officialSiteLabel: null,
+        fee: '₹1/page (B&W) · ₹5/page (Colour)',
+        processingTime: 'Immediate',
+        buttonLabel: 'Get Quote',
+        keywords: ['printing', 'print', 'photostat', 'xerox', 'photocopy', 'dtp', 'laser', 'colour print', 'bulk', 'document print'],
+        overview: 'Professional digital printing, photostat, and DTP services at affordable rates. We handle bulk printing for projects, legal documents, applications, and large-scale photocopying. High-quality laser prints on A4, A3, and legal-size paper.',
+        documents: [
+          'Digital files: PDF / JPEG / Word / Excel (via WhatsApp, USB, or email)',
+          'Physical documents for photostat',
+        ],
+        steps: [
+          { title: 'Share your files', desc: 'Send us your files via WhatsApp, USB drive, or email. Physical documents can be brought in.' },
+          { title: 'Print options confirmed', desc: 'We confirm paper size, colour/B&W, number of copies, and any special requirements.' },
+          { title: 'Printing done', desc: 'Your prints are ready immediately. Bulk orders may take 10–30 minutes.' },
+          { title: 'Collect or delivery', desc: 'Collect from our centre or we can arrange local delivery for bulk orders.' },
+        ],
+        payment: {
+          govFee: 'No government fee',
+          ourCharge: '₹1/page (A4 B&W), ₹5/page (Colour), ₹2/page (A4 Photostat)',
+          methods: ['Cash', 'UPI — Google Pay / PhonePe / Paytm'],
+          note: 'Bulk printing discounts available for orders above 100 pages.',
+        },
+      },
+      {
+        id: 'lamination',
+        name: 'Lamination Services',
+        malayalam: 'ലാമിനേഷൻ',
+        category: 'Digital Printing',
+        icon: 'verified_user',
+        colors: { bg: '#f5eeff', icon: '#8930b0', tag: '#6a1a90', tagBg: '#f0e6ff' },
+        description: 'Protect your vital documents with hot or cold lamination.',
+        officialSite: null,
+        officialSiteLabel: null,
+        fee: '₹10 (ID card size) to ₹40 (A4)',
+        processingTime: 'Immediate (5–10 min)',
+        buttonLabel: 'Get Quote',
+        keywords: ['lamination', 'laminate', 'protect', 'document protection', 'id card lamination', 'certificate lamination'],
+        overview: 'Protect your important documents from wear, moisture, and damage with our hot lamination service. We laminate ID cards, certificates, mark sheets, licenses, and any document up to A3 size. Quick turnaround — most items ready in under 10 minutes.',
+        documents: [
+          'The document or ID card to be laminated',
+          'No other documents required',
+        ],
+        steps: [
+          { title: 'Bring your document', desc: 'Bring the document you want laminated to our centre.' },
+          { title: 'Size and type confirmed', desc: 'We confirm the lamination size (ID card, A5, A4, A3) and pouch type.' },
+          { title: 'Lamination done', desc: 'Hot lamination completed in 5–10 minutes. We trim and finish edges neatly.' },
+          { title: 'Ready to collect', desc: 'Collect your laminated document immediately. No waiting.' },
+        ],
+        payment: {
+          govFee: 'No government fee',
+          ourCharge: '₹10 (ID card), ₹20 (A5), ₹30 (A4), ₹40 (A3)',
+          methods: ['Cash', 'UPI — Google Pay / PhonePe / Paytm'],
+          note: 'Bulk lamination orders (10+ items) get 20% discount.',
+        },
+      },
+    ];
+
+    /* ============================================================
+       RENDER FUNCTIONS
+    ============================================================ */
+    let activeCat = 'all';
+
+    function renderServices(list) {
+      const grid = document.getElementById('service-grid');
+      const noRes = document.getElementById('no-results');
+      const count = document.getElementById('section-count');
+
+      if (list.length === 0) {
+        grid.innerHTML = '';
+        noRes.classList.remove('hidden');
+        count.textContent = '';
+        return;
+      }
+      noRes.classList.add('hidden');
+      count.textContent = `${list.length} service${list.length !== 1 ? 's' : ''} found`;
+
+      grid.innerHTML = list.map(s => `
+      <div class="service-card group bg-white rounded-[1.75rem] p-7 shadow-sm hover:shadow-xl border border-transparent hover:border-orange-100">
+        <!-- Icon -->
+        <div class="w-12 h-12 rounded-xl mb-5 flex items-center justify-center flex-shrink-0"
+          style="background:${s.colors.bg}; color:${s.colors.icon};">
+          <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">${s.icon}</span>
+        </div>
+        <!-- Text -->
+        <h3 class="text-lg font-bold text-slate-900 mb-1">${s.name}</h3>
+        <p class="text-xs font-semibold mb-2" style="color:${s.colors.icon};">${s.malayalam}</p>
+        <p class="text-slate-500 text-sm leading-relaxed mb-5">${s.description}</p>
+        <!-- Meta -->
+        <div class="flex items-center gap-2 mb-5 flex-wrap">
+          <span class="text-xs font-bold px-2.5 py-1 rounded-full"
+            style="background:${s.colors.tagBg}; color:${s.colors.tag};">
+            ⚡ ${s.processingTime}
+          </span>
+          <span class="text-xs text-slate-400 px-2.5 py-1 rounded-full bg-slate-50">${s.category}</span>
+        </div>
+        <!-- Actions -->
+        <div class="flex gap-2">
+          <button onclick="openModal('${s.id}')"
+            class="flex-1 flex items-center justify-center space-x-1.5 py-3 rounded-xl text-sm font-bold bg-slate-100 text-slate-600 hover:bg-orange-50 hover:text-orange-700 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:16px;">info</span>
+            <span>How to Apply</span>
+          </button>
+          ${s.officialSite ? `
+          <a href="${s.officialSite}" target="_blank" rel="noopener"
+            class="flex-1 flex items-center justify-center space-x-1.5 py-3 rounded-xl text-sm font-bold text-white transition-all hover:scale-105 active:scale-95"
+            style="background:#f97f06;">
+            <span class="material-symbols-outlined" style="font-size:16px;">open_in_new</span>
+            <span>${s.buttonLabel}</span>
+          </a>` : `
+          <button onclick="openModal('${s.id}')"
+            class="flex-1 flex items-center justify-center space-x-1.5 py-3 rounded-xl text-sm font-bold text-white transition-all hover:scale-105"
+            style="background:#f97f06;">
+            <span>${s.buttonLabel}</span>
+          </button>`}
+        </div>
+      </div>
+    `).join('');
+    }
+
+    function filterCat(cat) {
+      activeCat = cat;
+      // Update pill styles
+      document.querySelectorAll('.cat-pill').forEach(el => {
+        const isActive = el.dataset.cat === cat;
+        el.classList.toggle('active', isActive);
+        if (!isActive) { el.style.background = ''; el.style.color = 'rgba(255,255,255,0.7)'; el.style.borderColor = 'rgba(255,255,255,0.2)'; }
+      });
+      const title = document.getElementById('section-title');
+      title.textContent = cat === 'all' ? 'All Services' : cat;
+      const filtered = cat === 'all' ? SERVICES : SERVICES.filter(s => s.category === cat);
+      renderServices(filtered);
+      document.getElementById('main-search').value = '';
+      document.getElementById('search-dropdown').classList.add('hidden');
+      document.getElementById('clear-btn').classList.add('hidden');
+      window.scrollTo({ top: document.getElementById('section-title').getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' });
+    }
+
+    /* ============================================================
+       SEARCH
+    ============================================================ */
+    function highlight(text, query) {
+      if (!query) return text;
+      const idx = text.toLowerCase().indexOf(query.toLowerCase());
+      if (idx === -1) return text;
+      return text.slice(0, idx)
+        + `<mark>${text.slice(idx, idx + query.length)}</mark>`
+        + text.slice(idx + query.length);
+    }
+
+    const searchInput = document.getElementById('main-search');
+    const dropdown = document.getElementById('search-dropdown');
+    const clearBtn = document.getElementById('clear-btn');
+
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.trim().toLowerCase();
+      clearBtn.classList.toggle('hidden', q.length === 0);
+      if (q.length === 0) {
+        dropdown.classList.add('hidden');
+        renderServices(activeCat === 'all' ? SERVICES : SERVICES.filter(s => s.category === activeCat));
+        document.getElementById('section-title').textContent = activeCat === 'all' ? 'All Services' : activeCat;
+        return;
+      }
+
+      // Score-based matching
+      const scored = SERVICES.map(s => {
+        let score = 0;
+        if (s.name.toLowerCase().includes(q)) score += 10;
+        if (s.malayalam.toLowerCase().includes(q)) score += 8;
+        if (s.description.toLowerCase().includes(q)) score += 5;
+        if (s.keywords.some(k => k.includes(q))) score += 4;
+        if (s.category.toLowerCase().includes(q)) score += 2;
+        return { s, score };
+      }).filter(x => x.score > 0).sort((a, b) => b.score - a.score);
+
+      // Update grid
+      renderServices(scored.map(x => x.s));
+      document.getElementById('section-title').textContent = `Results for "${searchInput.value.trim()}"`;
+
+      // Build dropdown (top 5)
+      const top = scored.slice(0, 5);
+      if (top.length === 0) {
+        dropdown.innerHTML = `
+        <div class="p-5 text-center">
+          <span class="material-symbols-outlined text-3xl text-slate-300">search_off</span>
+          <p class="text-sm text-slate-400 mt-2">No results for "<strong>${searchInput.value}</strong>"</p>
+          <p class="text-xs text-slate-300 mt-1">Try: PAN Card, Passport, KSEB, PSC…</p>
+        </div>`;
+      } else {
+        dropdown.innerHTML = top.map(({ s }) => `
+        <button onclick="openModal('${s.id}'); closeDropdown();"
+          class="w-full flex items-center space-x-3 px-4 py-3.5 hover:bg-orange-50 transition-colors text-left border-b border-slate-50 last:border-0 group">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+            style="background:${s.colors.bg}; color:${s.colors.icon};">
+            <span class="material-symbols-outlined text-lg" style="font-variation-settings:'FILL' 1;">${s.icon}</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-slate-800">${highlight(s.name, q)}</p>
+            <p class="text-xs text-slate-400 mt-0.5">${s.category} &nbsp;·&nbsp; ${s.processingTime}</p>
+          </div>
+          <div class="flex items-center space-x-2 flex-shrink-0">
+            ${s.officialSite ? `<a href="${s.officialSite}" target="_blank" rel="noopener" onclick="event.stopPropagation();"
+              class="text-xs font-bold px-2.5 py-1 rounded-full border border-orange-200 text-orange-600 hover:bg-orange-100 transition-colors">
+              Official ↗
+            </a>` : ''}
+            <span class="material-symbols-outlined text-slate-300 group-hover:text-orange-400 transition-colors" style="font-size:18px;">arrow_forward</span>
+          </div>
+        </button>
+      `).join('');
+        if (scored.length > 5) {
+          dropdown.innerHTML += `
+          <div class="px-4 py-3 bg-slate-50 text-center">
+            <button onclick="closeDropdown()" class="text-xs font-bold text-orange-600 hover:text-orange-800 transition-colors">
+              See all ${scored.length} results below ↓
+            </button>
+          </div>`;
+        }
+      }
+      dropdown.classList.remove('hidden');
+    });
+
+    searchInput.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDropdown(); });
+    document.addEventListener('click', (e) => {
+      if (!document.getElementById('search-wrapper').contains(e.target)) closeDropdown();
+    });
+
+    function closeDropdown() { dropdown.classList.add('hidden'); }
+    function clearSearch() {
+      searchInput.value = '';
+      clearBtn.classList.add('hidden');
+      dropdown.classList.add('hidden');
+      renderServices(activeCat === 'all' ? SERVICES : SERVICES.filter(s => s.category === activeCat));
+      document.getElementById('section-title').textContent = activeCat === 'all' ? 'All Services' : activeCat;
+      searchInput.focus();
+    }
+
+    /* ============================================================
+       MODAL
+    ============================================================ */
+    let currentService = null;
+
+    function openModal(id) {
+      const s = SERVICES.find(x => x.id === id);
+      if (!s) return;
+      currentService = s;
+
+      // Header
+      const iconWrap = document.getElementById('modal-icon-wrap');
+      iconWrap.style.background = s.colors.bg;
+      const iconEl = document.getElementById('modal-icon');
+      iconEl.textContent = s.icon;
+      iconEl.style.color = s.colors.icon;
+      document.getElementById('modal-name').textContent = s.name;
+      document.getElementById('modal-ml').textContent = s.malayalam;
+
+      // Quick info
+      document.getElementById('modal-time').textContent = s.processingTime;
+      document.getElementById('modal-fee').textContent = s.fee;
+      document.getElementById('modal-cat').textContent = s.category;
+
+      // Overview tab
+      document.getElementById('modal-overview').textContent = s.overview;
+
+      // Official site
+      const linkEl = document.getElementById('modal-official-link');
+      const link2El = document.getElementById('modal-official-link2');
+      if (s.officialSite) {
+        document.getElementById('modal-official-wrap').classList.remove('hidden');
+        linkEl.href = s.officialSite;
+        document.getElementById('modal-site-label').textContent = s.officialSiteLabel;
+        document.getElementById('modal-site-url').textContent = s.officialSite;
+        if (s.officialSite2) {
+          link2El.classList.remove('hidden');
+          link2El.href = s.officialSite2;
+          document.getElementById('modal-site-label2').textContent = s.officialSiteLabel2;
+          document.getElementById('modal-site-url2').textContent = s.officialSite2;
+        } else {
+          link2El.classList.add('hidden');
+        }
+      } else {
+        document.getElementById('modal-official-wrap').classList.add('hidden');
+      }
+
+      // Steps tab
+      document.getElementById('modal-steps').innerHTML = s.steps.map((step, i) => `
+      <div class="step-dot relative flex space-x-4 pb-8 pl-2">
+        <div class="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-black text-white shadow-md"
+          style="background:linear-gradient(135deg,#f97f06,#e05c00);">${i + 1}</div>
+        <div class="pt-1">
+          <h4 class="font-bold text-slate-800 text-sm">${step.title}</h4>
+          <p class="text-slate-500 text-sm mt-1 leading-relaxed">${step.desc}</p>
+        </div>
+      </div>`).join('');
+
+      // Documents tab
+      document.getElementById('modal-docs').innerHTML = s.documents.map(doc => `
+      <li class="flex items-start space-x-3 p-3 rounded-xl bg-slate-50">
+        <span class="material-symbols-outlined text-orange-500 flex-shrink-0 mt-0.5" style="font-variation-settings:'FILL' 1; font-size:18px;">check_circle</span>
+        <span class="text-sm text-slate-700">${doc}</span>
+      </li>`).join('');
+
+      // Payment tab
+      const p = s.payment;
+      document.getElementById('modal-payment-content').innerHTML = `
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Government Fee</p>
+          <p class="text-base font-extrabold text-slate-800">${p.govFee}</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-orange-50 border border-orange-100">
+          <p class="text-xs font-bold text-orange-400 uppercase tracking-widest mb-2">Our Service Charge</p>
+          <p class="text-base font-extrabold text-orange-700">${p.ourCharge}</p>
+        </div>
+      </div>
+      <div class="mt-4">
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Accepted Payment Methods</p>
+        <div class="space-y-2">
+          ${p.methods.map(m => `
+            <div class="flex items-center space-x-3 p-3 rounded-xl bg-slate-50">
+              <span class="material-symbols-outlined text-green-500" style="font-size:18px; font-variation-settings:'FILL' 1;">payments</span>
+              <span class="text-sm text-slate-700">${m}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="mt-4 p-4 rounded-2xl bg-green-50 border border-green-100 flex items-start space-x-3">
+        <span class="material-symbols-outlined text-green-600 flex-shrink-0" style="font-size:18px; font-variation-settings:'FILL' 1;">verified</span>
+        <p class="text-sm text-green-700">${p.note}</p>
+      </div>`;
+
+      // Footer apply button
+      const applyBtn = document.getElementById('modal-apply-btn');
+      if (s.officialSite) {
+        applyBtn.href = s.officialSite;
+        applyBtn.style.display = '';
+      } else {
+        applyBtn.style.display = 'none';
+      }
+
+      // Reset to first tab
+      switchTab('overview', document.querySelector('.tab-btn'));
+
+      // Open modal
+      const modal = document.getElementById('svc-modal');
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('svc-modal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function switchTab(tab, btn) {
+      ['overview', 'steps', 'documents', 'payment'].forEach(t => {
+        document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab);
+      });
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      document.getElementById('modal-body').scrollTop = 0;
+    }
+
+    // Escape key closes modal
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    /* ============================================================
+       INITIAL RENDER
+    ============================================================ */
+    renderServices(SERVICES);
+    document.getElementById('section-count').textContent = `${SERVICES.length} services available`;
+  </script>
+
+</body>
+
+</html>
