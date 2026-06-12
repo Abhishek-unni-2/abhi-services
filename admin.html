@@ -7,12 +7,19 @@
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     body { font-family: 'Inter', sans-serif; }
     h1,h2,h3,h4 { font-family: 'Plus Jakarta Sans', sans-serif; }
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
 
     #login-screen { position:fixed; inset:0; z-index:9999; background:linear-gradient(135deg,#0e1c36 0%,#1a3560 60%,#0a1628 100%); display:flex; align-items:center; justify-content:center; }
+    #loading-overlay { position:fixed; inset:0; z-index:9998; background:rgba(255,255,255,.85); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px; }
+    .spinner { width:36px; height:36px; border:3px solid #f1f5f9; border-top-color:#3ecf8e; border-radius:50%; animation:spin .7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
 
     .nav-link { display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:10px; color:#495f69; font-size:14px; font-weight:500; cursor:pointer; transition:background .15s,color .15s; }
     .nav-link:hover, .nav-link.active { background:#fff3e0; color:#c75e00; }
@@ -25,10 +32,8 @@
     .ledger-table tfoot td { padding:12px 14px; font-size:13px; font-weight:700; background:#f8fafc; border-top:2px solid #e2e8f0; }
 
     .stat-card { border-radius:1.25rem; padding:1.2rem 1.4rem; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.07); }
-
     .field { width:100%; padding:9px 12px; border-radius:10px; border:1.5px solid #e2e8f0; font-size:13px; outline:none; transition:border-color .15s,box-shadow .15s; background:#fff; }
-    .field:focus { border-color:#f97f06; box-shadow:0 0 0 3px rgba(249,127,6,.12); }
-
+    .field:focus { border-color:#3ecf8e; box-shadow:0 0 0 3px rgba(62,207,142,.12); }
     .badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; }
 
     .charge-col  { color:#005caa; font-weight:700; }
@@ -38,29 +43,42 @@
     .net-pos { color:#0d6b38; }
     .net-neg { color:#b02500; }
 
-    /* divider between form field groups */
-    .form-section-label { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#94a3b8; padding:2px 0 6px; grid-column:1/-1; border-top:1px dashed #e2e8f0; margin-top:4px; padding-top:14px; }
+    .form-section-label { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#94a3b8; grid-column:1/-1; border-top:1px dashed #e2e8f0; margin-top:4px; padding-top:14px; }
     .form-section-label:first-child { border-top:none; margin-top:0; padding-top:0; }
   </style>
 </head>
 <body class="bg-slate-100 min-h-screen">
+
+<!-- ══════════ LOADING ══════════ -->
+<div id="loading-overlay" class="hidden">
+  <div class="spinner"></div>
+  <p class="text-sm font-semibold text-slate-500">Connecting to database…</p>
+</div>
+
+<!-- ══════════ NOT CONFIGURED BANNER ══════════ -->
+<div id="config-banner" class="hidden fixed top-0 left-0 right-0 z-50 px-6 py-3 text-sm font-semibold text-white flex items-center gap-3" style="background:#b02500;">
+  <span class="material-symbols-outlined" style="font-size:18px;">warning</span>
+  Supabase is not configured. Open admin.html and replace SUPABASE_URL and SUPABASE_ANON_KEY at the top of the script.
+</div>
 
 <!-- ══════════ LOGIN ══════════ -->
 <div id="login-screen">
   <div class="w-full max-w-sm mx-4">
     <div class="bg-white rounded-3xl shadow-2xl p-8">
       <div class="text-center mb-7">
-        <div class="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center" style="background:linear-gradient(135deg,#f97f06,#e05c00);">
+        <div class="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center" style="background:linear-gradient(135deg,#3ecf8e,#1a9c56);">
           <span class="material-symbols-outlined text-white text-3xl" style="font-variation-settings:'FILL' 1;">admin_panel_settings</span>
         </div>
         <h1 class="text-2xl font-extrabold text-slate-900">Admin Login</h1>
         <p class="text-sm text-slate-500 mt-1">Abhi Online Services — ERP</p>
       </div>
-      <div id="login-err" class="hidden mb-4 px-4 py-3 rounded-xl text-sm font-semibold" style="background:#fff0ee;color:#b02500;">Wrong password. Try again.</div>
+      <div id="login-err" class="hidden mb-4 px-4 py-3 rounded-xl text-sm font-semibold" style="background:#fff0ee;color:#b02500;"></div>
       <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Password</label>
       <input id="login-pwd" type="password" placeholder="Enter password" class="field mb-4"
         onkeydown="if(event.key==='Enter')doLogin()" />
-      <button onclick="doLogin()" class="w-full py-3 rounded-xl font-bold text-sm text-white hover:opacity-90 active:scale-95 transition-all" style="background:linear-gradient(135deg,#f97f06,#e05c00);">
+      <button onclick="doLogin()"
+        class="w-full py-3 rounded-xl font-bold text-sm text-white hover:opacity-90 active:scale-95 transition-all"
+        style="background:linear-gradient(135deg,#3ecf8e,#1a9c56);">
         Enter ERP Panel
       </button>
       <p class="text-center text-xs text-slate-400 mt-4">Default password: <b>admin123</b></p>
@@ -84,7 +102,6 @@
         </div>
       </a>
     </div>
-
     <nav class="flex-1 px-3 py-4 space-y-1">
       <p class="px-3 text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Daily Work</p>
       <div class="nav-link active" id="nav-ledger" onclick="showSection('ledger',this)">
@@ -105,7 +122,6 @@
         Settings
       </div>
     </nav>
-
     <div class="px-3 py-4 border-t border-slate-100">
       <a href="index.html" class="nav-link">
         <span class="material-symbols-outlined">home</span>
@@ -120,23 +136,24 @@
 
   <!-- Main -->
   <main class="flex-1 overflow-y-auto">
-
-    <!-- Top bar -->
     <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
       <div>
         <h1 id="page-title" class="text-xl font-extrabold text-slate-900">Daily Ledger</h1>
         <p id="page-sub" class="text-xs text-slate-400 mt-0.5">Enter today's services, charges, credits, debits and expenses</p>
       </div>
       <div class="flex items-center gap-3">
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold" style="background:#e8f7ef;color:#0d6b38;">
+          <span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>
+          Live sync
+        </div>
         <span class="text-sm text-slate-500 font-medium" id="top-date"></span>
         <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-white text-sm" style="background:linear-gradient(135deg,#f97f06,#e05c00);">A</div>
       </div>
     </header>
 
-    <!-- ── SECTION: DAILY LEDGER ── -->
+    <!-- ── DAILY LEDGER ── -->
     <section id="section-ledger" class="p-6 space-y-5">
 
-      <!-- 5 summary stat cards -->
       <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
         <div class="stat-card">
           <div class="flex items-center gap-2 mb-2">
@@ -190,7 +207,7 @@
         </div>
       </div>
 
-      <!-- ── ADD NEW ENTRY FORM ── -->
+      <!-- Add New Entry Form -->
       <div class="bg-white rounded-2xl shadow-sm p-6">
         <div class="flex items-center gap-3 mb-5">
           <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#f97f06,#e05c00);">
@@ -198,15 +215,12 @@
           </div>
           <div>
             <h2 class="text-base font-extrabold text-slate-900">Add New Entry</h2>
-            <p class="text-xs text-slate-400">Service info, then fill the columns that apply for this transaction</p>
+            <p class="text-xs text-slate-400">Fill service name, then the amounts that apply</p>
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-
-          <!-- ── Group: Service Info ── -->
           <div class="form-section-label">Service Info</div>
-
           <div>
             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Date *</label>
             <input type="date" id="f-date" class="field" />
@@ -221,56 +235,41 @@
             <input type="text" id="f-customer" placeholder="Optional" class="field" />
           </div>
 
-          <!-- ── Group: Amounts ── -->
           <div class="form-section-label">Amounts — fill only what applies</div>
-
-          <!-- Service Charge -->
           <div>
             <label class="block text-xs font-bold text-blue-700 uppercase tracking-wide mb-1.5">
               <span class="material-symbols-outlined align-middle" style="font-size:13px;font-variation-settings:'FILL' 1;">payments</span>
               Service Charge (₹)
             </label>
-            <input type="number" id="f-charge" placeholder="0.00" min="0" step="0.01"
-              class="field" style="border-color:#bfdbfe;" />
-            <p class="text-[11px] text-slate-400 mt-1">Your fee for doing this service</p>
+            <input type="number" id="f-charge" placeholder="0.00" min="0" step="0.01" class="field" style="border-color:#bfdbfe;" />
+            <p class="text-[11px] text-slate-400 mt-1">Your fee for this service</p>
           </div>
-
-          <!-- Bank Credit -->
           <div>
             <label class="block text-xs font-bold text-green-700 uppercase tracking-wide mb-1.5">
               <span class="material-symbols-outlined align-middle" style="font-size:13px;font-variation-settings:'FILL' 1;">arrow_downward</span>
               Bank Credit (₹)
             </label>
-            <input type="number" id="f-credit" placeholder="0.00" min="0" step="0.01"
-              class="field" style="border-color:#bbf7d0;" />
+            <input type="number" id="f-credit" placeholder="0.00" min="0" step="0.01" class="field" style="border-color:#bbf7d0;" />
             <p class="text-[11px] text-slate-400 mt-1">Money customer sent to our bank</p>
           </div>
-
-          <!-- Bank Debit -->
           <div>
             <label class="block text-xs font-bold text-purple-700 uppercase tracking-wide mb-1.5">
               <span class="material-symbols-outlined align-middle" style="font-size:13px;font-variation-settings:'FILL' 1;">arrow_upward</span>
               Bank Debit (₹)
             </label>
-            <input type="number" id="f-debit" placeholder="0.00" min="0" step="0.01"
-              class="field" style="border-color:#ddd6fe;" />
-            <p class="text-[11px] text-slate-400 mt-1">Amount paid FROM our bank (e.g. paid KSEB online)</p>
+            <input type="number" id="f-debit" placeholder="0.00" min="0" step="0.01" class="field" style="border-color:#ddd6fe;" />
+            <p class="text-[11px] text-slate-400 mt-1">Amount paid FROM our bank</p>
           </div>
-
-          <!-- Expense -->
           <div>
             <label class="block text-xs font-bold text-red-700 uppercase tracking-wide mb-1.5">
               <span class="material-symbols-outlined align-middle" style="font-size:13px;font-variation-settings:'FILL' 1;">trending_down</span>
               Expense (₹)
             </label>
-            <input type="number" id="f-expense" placeholder="0.00" min="0" step="0.01"
-              class="field" style="border-color:#fecaca;" />
+            <input type="number" id="f-expense" placeholder="0.00" min="0" step="0.01" class="field" style="border-color:#fecaca;" />
             <p class="text-[11px] text-slate-400 mt-1">Any other operational cost</p>
           </div>
 
-          <!-- ── Group: Extra ── -->
           <div class="form-section-label">Other Details</div>
-
           <div>
             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Entered By</label>
             <input type="text" id="f-staff" placeholder="Staff name" class="field" />
@@ -284,9 +283,8 @@
         <div id="form-err" class="hidden mt-3 px-4 py-2.5 rounded-xl text-sm font-semibold" style="background:#fff0ee;color:#b02500;">
           Please enter Service Name and at least one amount.
         </div>
-
         <div class="mt-5 flex gap-3 flex-wrap">
-          <button onclick="addEntry()"
+          <button id="add-btn" onclick="addEntry()"
             class="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white hover:opacity-90 active:scale-95 transition-all"
             style="background:linear-gradient(135deg,#f97f06,#e05c00);">
             <span class="material-symbols-outlined" style="font-size:18px;">add</span>
@@ -299,7 +297,7 @@
         </div>
       </div>
 
-      <!-- ── LEDGER TABLE ── -->
+      <!-- Ledger Table -->
       <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 flex-wrap gap-3">
           <div class="flex items-center gap-3">
@@ -322,7 +320,6 @@
             </button>
           </div>
         </div>
-
         <div class="overflow-x-auto">
           <table class="ledger-table">
             <thead>
@@ -342,16 +339,14 @@
               </tr>
             </thead>
             <tbody id="tbl-body">
-              <tr>
-                <td colspan="12" class="text-center py-14 text-slate-400">
-                  <span class="material-symbols-outlined block mb-2" style="font-size:40px;opacity:.25;">table_view</span>
-                  No entries yet. Add one above.
-                </td>
-              </tr>
+              <tr><td colspan="12" class="text-center py-14 text-slate-400">
+                <div class="spinner mx-auto mb-3"></div>
+                Loading from database…
+              </td></tr>
             </tbody>
             <tfoot id="tbl-foot" class="hidden">
               <tr>
-                <td colspan="4" class="text-right text-slate-600 uppercase tracking-wide" style="font-size:11px;">Total</td>
+                <td colspan="4" class="text-right text-slate-500 uppercase tracking-wide" style="font-size:11px;">Total</td>
                 <td class="text-right charge-col"  id="ft-charge">₹0.00</td>
                 <td class="text-right credit-col"  id="ft-credit">₹0.00</td>
                 <td class="text-right debit-col"   id="ft-debit">₹0.00</td>
@@ -367,10 +362,9 @@
           </table>
         </div>
       </div>
-
     </section>
 
-    <!-- ── SECTION: SUMMARY ── -->
+    <!-- ── SUMMARY ── -->
     <section id="section-summary" class="hidden p-6 space-y-5">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div class="bg-white rounded-2xl shadow-sm p-6">
@@ -403,14 +397,14 @@
       </div>
     </section>
 
-    <!-- ── SECTION: MANAGE SERVICES ── -->
+    <!-- ── MANAGE SERVICES ── -->
     <section id="section-services" class="hidden p-6">
       <div class="bg-white rounded-2xl shadow-sm p-6 max-w-xl">
         <h2 class="text-base font-extrabold text-slate-900 mb-1">Service Name List</h2>
         <p class="text-xs text-slate-400 mb-5">These appear as suggestions in the entry form.</p>
         <div id="svc-list" class="space-y-2 mb-5"></div>
         <div class="flex gap-3">
-          <input type="text" id="new-svc" placeholder="Add service name (e.g. Ration Card)" class="field flex-1"
+          <input type="text" id="new-svc" placeholder="Add service name" class="field flex-1"
             onkeydown="if(event.key==='Enter')addService()" />
           <button onclick="addService()"
             class="flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-bold text-sm text-white"
@@ -421,7 +415,7 @@
       </div>
     </section>
 
-    <!-- ── SECTION: SETTINGS ── -->
+    <!-- ── SETTINGS ── -->
     <section id="section-settings" class="hidden p-6 space-y-5">
       <div class="bg-white rounded-2xl shadow-sm p-6 max-w-md">
         <h2 class="text-base font-extrabold text-slate-900 mb-5">Change Admin Password</h2>
@@ -456,9 +450,13 @@
 </div>
 
 <script>
-const K_ENTRIES  = 'abhi_ledger';
-const K_PWD      = 'abhi_pwd';
-const K_SERVICES = 'abhi_services';
+// ════════════════════════════════════════════
+//  SUPABASE CONFIG — REPLACE WITH YOUR OWN
+//  Get from: supabase.com → Project Settings → API
+// ════════════════════════════════════════════
+const SUPABASE_URL      = 'https://fedlvbjviofkzktaqrxs.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_8ZGxUfhe7kOwFpNeQghEXQ_BWM5lrhd';
+// ════════════════════════════════════════════
 
 const DEFAULT_SERVICES = [
   'KSEB Bill Payment','BSNL Bill Payment','Water Bill Payment',
@@ -471,15 +469,22 @@ const DEFAULT_SERVICES = [
   'GST Filing','Income Tax Return','Photo / Print Service',
 ];
 
-const getEntries  = () => JSON.parse(localStorage.getItem(K_ENTRIES)  || '[]');
-const saveEntries = v  => localStorage.setItem(K_ENTRIES, JSON.stringify(v));
-const getPwd      = () => localStorage.getItem(K_PWD) || 'admin123';
-const getServices = () => JSON.parse(localStorage.getItem(K_SERVICES) || JSON.stringify(DEFAULT_SERVICES));
-const saveSvcs    = v  => localStorage.setItem(K_SERVICES, JSON.stringify(v));
+const isConfigured = !SUPABASE_URL.startsWith('REPLACE');
+if (!isConfigured) document.getElementById('config-banner').classList.remove('hidden');
 
+const sb = isConfigured
+  ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+let allEntries  = [];
+let allServices = [...DEFAULT_SERVICES];
+let realtimeSub = null;
+
+// ── Helpers
 const todayStr = () => new Date().toISOString().split('T')[0];
 
 function fmtDate(s) {
+  if (!s) return '—';
   const [y,m,d] = s.split('-');
   return `${+d} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1]} ${y}`;
 }
@@ -489,38 +494,101 @@ function fmtINR(n) {
 function cell(v, cls) {
   return v > 0
     ? `<td class="text-right ${cls} whitespace-nowrap">${fmtINR(v)}</td>`
-    : `<td class="text-right text-slate-200 whitespace-nowrap">—</td>`;
+    : `<td class="text-right whitespace-nowrap" style="color:#cbd5e1;">—</td>`;
+}
+async function sha256(msg) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function showLoading(v) {
+  document.getElementById('loading-overlay').classList.toggle('hidden', !v);
+}
+function showLoginErr(msg) {
+  const el = document.getElementById('login-err');
+  el.textContent = msg;
+  el.classList.remove('hidden');
 }
 
-// ── Login / Logout
-function doLogin() {
-  if (document.getElementById('login-pwd').value === getPwd()) {
+// ── Login
+async function doLogin() {
+  if (!isConfigured) { showLoginErr('Supabase not configured. See red banner.'); return; }
+  const pwd = document.getElementById('login-pwd').value;
+  if (!pwd) return;
+
+  showLoading(true);
+  try {
+    const hash = await sha256(pwd);
+
+    // Load settings row
+    const { data: rows } = await sb.from('settings').select('value').eq('key','app');
+    const settingsRow = rows && rows[0] ? rows[0].value : null;
+
+    if (!settingsRow || !settingsRow.passwordHash) {
+      // First login — check against default 'admin123'
+      const defaultHash = await sha256('admin123');
+      if (hash !== defaultHash) { showLoading(false); showLoginErr('Wrong password.'); return; }
+      // Save defaults to DB
+      await sb.from('settings').upsert({
+        key: 'app',
+        value: { passwordHash: hash, services: DEFAULT_SERVICES }
+      });
+      allServices = DEFAULT_SERVICES;
+    } else {
+      if (hash !== settingsRow.passwordHash) { showLoading(false); showLoginErr('Wrong password.'); return; }
+      allServices = settingsRow.services || DEFAULT_SERVICES;
+    }
+
+    // ── Logged in
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').classList.remove('hidden');
     document.getElementById('app').classList.add('flex');
-    init();
-  } else {
-    document.getElementById('login-err').classList.remove('hidden');
+    document.getElementById('login-err').classList.add('hidden');
     document.getElementById('login-pwd').value = '';
-    document.getElementById('login-pwd').focus();
+    showLoading(false);
+    init();
+  } catch (err) {
+    showLoading(false);
+    showLoginErr('Connection error: ' + err.message);
   }
 }
+
 function doLogout() {
+  if (realtimeSub) { sb.removeChannel(realtimeSub); realtimeSub = null; }
+  allEntries = [];
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('app').classList.add('hidden');
   document.getElementById('app').classList.remove('flex');
-  document.getElementById('login-pwd').value = '';
-  document.getElementById('login-err').classList.add('hidden');
 }
 
-// ── Init
-function init() {
+// ── Init after login
+async function init() {
   document.getElementById('top-date').textContent =
     new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
   document.getElementById('f-date').value = todayStr();
   refreshDatalist();
-  updateStats();
-  renderTable();
+
+  // Load all entries once
+  await loadEntries();
+
+  // Real-time subscription — table auto-updates when any device adds/deletes
+  realtimeSub = sb
+    .channel('entries-live')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'entries' }, () => {
+      loadEntries();
+    })
+    .subscribe();
+}
+
+async function loadEntries() {
+  const { data, error } = await sb
+    .from('entries')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (!error && data) {
+    allEntries = data;
+    updateStats();
+    renderTable();
+  }
 }
 
 // ── Section nav
@@ -543,16 +611,16 @@ function showSection(name, el) {
 }
 
 // ── Add Entry
-function addEntry() {
-  const date     = document.getElementById('f-date').value;
-  const service  = document.getElementById('f-service').value.trim();
-  const customer = document.getElementById('f-customer').value.trim();
-  const charge   = parseFloat(document.getElementById('f-charge').value)  || 0;
-  const credit   = parseFloat(document.getElementById('f-credit').value)  || 0;
-  const debit    = parseFloat(document.getElementById('f-debit').value)   || 0;
-  const expense  = parseFloat(document.getElementById('f-expense').value) || 0;
-  const staff    = document.getElementById('f-staff').value.trim()   || 'Staff';
-  const remarks  = document.getElementById('f-remarks').value.trim();
+async function addEntry() {
+  const date    = document.getElementById('f-date').value;
+  const service = document.getElementById('f-service').value.trim();
+  const customer= document.getElementById('f-customer').value.trim();
+  const charge  = parseFloat(document.getElementById('f-charge').value)  || 0;
+  const credit  = parseFloat(document.getElementById('f-credit').value)  || 0;
+  const debit   = parseFloat(document.getElementById('f-debit').value)   || 0;
+  const expense = parseFloat(document.getElementById('f-expense').value) || 0;
+  const staff   = document.getElementById('f-staff').value.trim() || 'Staff';
+  const remarks = document.getElementById('f-remarks').value.trim();
 
   if (!service || (charge + credit + debit + expense === 0)) {
     document.getElementById('form-err').classList.remove('hidden');
@@ -560,17 +628,21 @@ function addEntry() {
   }
   document.getElementById('form-err').classList.add('hidden');
 
-  const entries = getEntries();
-  entries.push({
-    id: Date.now(), date, service, customer,
-    charge, credit, debit, expense,
-    staff, remarks,
+  const btn = document.getElementById('add-btn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  const { error } = await sb.from('entries').insert({
+    date, service, customer, charge, credit, debit, expense, staff, remarks,
     time: new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }),
   });
-  saveEntries(entries);
+
+  btn.disabled = false;
+  btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">add</span> Add Entry';
+
+  if (error) { alert('Save failed: ' + error.message); return; }
   clearForm();
-  updateStats();
-  renderTable();
+  // real-time listener will update the table automatically
 }
 
 function clearForm() {
@@ -580,23 +652,23 @@ function clearForm() {
   document.getElementById('form-err').classList.add('hidden');
 }
 
-function delEntry(id) {
+// ── Delete
+async function delEntry(id) {
   if (!confirm('Delete this entry?')) return;
-  saveEntries(getEntries().filter(e => e.id !== id));
-  updateStats();
-  renderTable();
+  const { error } = await sb.from('entries').delete().eq('id', id);
+  if (error) alert('Delete failed: ' + error.message);
+  // real-time listener handles table refresh
 }
 
-// ── Stats (today)
+// ── Stats
 function updateStats() {
   const today = todayStr();
-  const rows  = getEntries().filter(e => e.date === today);
-  const charge  = rows.reduce((s,e) => s + e.charge,  0);
-  const credit  = rows.reduce((s,e) => s + e.credit,  0);
-  const debit   = rows.reduce((s,e) => s + (e.debit||0), 0);
-  const expense = rows.reduce((s,e) => s + e.expense, 0);
+  const rows  = allEntries.filter(e => e.date === today);
+  const charge  = rows.reduce((s,e) => s + (e.charge||0),  0);
+  const credit  = rows.reduce((s,e) => s + (e.credit||0),  0);
+  const debit   = rows.reduce((s,e) => s + (e.debit||0),   0);
+  const expense = rows.reduce((s,e) => s + (e.expense||0), 0);
   const net     = charge - expense;
-
   document.getElementById('s-charge').textContent  = fmtINR(charge);
   document.getElementById('s-credit').textContent  = fmtINR(credit);
   document.getElementById('s-debit').textContent   = fmtINR(debit);
@@ -606,27 +678,22 @@ function updateStats() {
   netEl.className   = 'text-lg font-black ' + (net >= 0 ? 'net-pos' : 'net-neg');
 }
 
-// ── Render Table
+// ── Table
 function filterEntries() {
-  const f     = document.getElementById('tbl-filter').value;
-  const all   = getEntries();
+  const f = document.getElementById('tbl-filter').value;
   const today = todayStr();
   const now   = new Date();
-  if (f === 'today') return all.filter(e => e.date === today);
-  if (f === 'week')  {
-    const w = new Date(now); w.setDate(w.getDate()-6);
-    return all.filter(e => e.date >= w.toISOString().split('T')[0]);
-  }
-  if (f === 'month') return all.filter(e => e.date.startsWith(today.slice(0,7)));
-  return [...all];
+  if (f === 'today') return allEntries.filter(e => e.date === today);
+  if (f === 'week')  { const w = new Date(now); w.setDate(w.getDate()-6); return allEntries.filter(e => e.date >= w.toISOString().split('T')[0]); }
+  if (f === 'month') return allEntries.filter(e => e.date && e.date.startsWith(today.slice(0,7)));
+  return [...allEntries];
 }
 
 function renderTable() {
-  const fVal   = document.getElementById('tbl-filter').value;
-  const labels = { today:'Today', week:'This Week', month:'This Month', all:'All Records' };
-  document.getElementById('tbl-badge').textContent = labels[fVal];
+  const fVal = document.getElementById('tbl-filter').value;
+  document.getElementById('tbl-badge').textContent = { today:'Today', week:'This Week', month:'This Month', all:'All Records' }[fVal];
 
-  const rows  = filterEntries().sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
+  const rows  = filterEntries();
   const tbody = document.getElementById('tbl-body');
   const tfoot = document.getElementById('tbl-foot');
   document.getElementById('tbl-count').textContent = rows.length ? `(${rows.length} entries)` : '';
@@ -640,33 +707,32 @@ function renderTable() {
     return;
   }
 
-  const totCharge  = rows.reduce((s,e) => s + e.charge, 0);
-  const totCredit  = rows.reduce((s,e) => s + e.credit, 0);
-  const totDebit   = rows.reduce((s,e) => s + (e.debit||0), 0);
-  const totExpense = rows.reduce((s,e) => s + e.expense, 0);
+  const totCharge  = rows.reduce((s,e) => s+(e.charge||0),  0);
+  const totCredit  = rows.reduce((s,e) => s+(e.credit||0),  0);
+  const totDebit   = rows.reduce((s,e) => s+(e.debit||0),   0);
+  const totExpense = rows.reduce((s,e) => s+(e.expense||0), 0);
   const totNet     = totCharge - totExpense;
 
   tbody.innerHTML = rows.map((e,i) => `
     <tr>
       <td class="text-slate-400 font-mono text-xs">${rows.length-i}</td>
       <td class="whitespace-nowrap text-slate-700 font-medium">${fmtDate(e.date)}</td>
-      <td class="font-semibold text-slate-800 whitespace-nowrap">${e.service}</td>
-      <td class="text-slate-500 text-xs">${e.customer || '—'}</td>
-      ${cell(e.charge,  'charge-col')}
-      ${cell(e.credit,  'credit-col')}
-      ${cell(e.debit||0,'debit-col')}
-      ${cell(e.expense, 'expense-col')}
-      <td class="text-slate-500 text-xs whitespace-nowrap">${e.staff}</td>
-      <td class="text-slate-400 text-xs max-w-[150px] truncate" title="${e.remarks||''}">${e.remarks||'—'}</td>
+      <td class="font-semibold text-slate-800 whitespace-nowrap">${e.service||''}</td>
+      <td class="text-slate-500 text-xs">${e.customer||'—'}</td>
+      ${cell(e.charge||0,  'charge-col')}
+      ${cell(e.credit||0,  'credit-col')}
+      ${cell(e.debit||0,   'debit-col')}
+      ${cell(e.expense||0, 'expense-col')}
+      <td class="text-slate-500 text-xs whitespace-nowrap">${e.staff||''}</td>
+      <td class="text-slate-400 text-xs max-w-[140px] truncate" title="${e.remarks||''}">${e.remarks||'—'}</td>
       <td class="text-slate-400 text-xs whitespace-nowrap">${e.time||'—'}</td>
       <td>
-        <button onclick="delEntry(${e.id})" title="Delete"
+        <button onclick="delEntry('${e.id}')" title="Delete"
           class="w-8 h-8 rounded-lg flex items-center justify-center mx-auto text-red-300 hover:text-red-600 hover:bg-red-50 transition-all">
           <span class="material-symbols-outlined" style="font-size:15px;">delete</span>
         </button>
       </td>
-    </tr>
-  `).join('');
+    </tr>`).join('');
 
   document.getElementById('ft-charge').textContent  = fmtINR(totCharge);
   document.getElementById('ft-credit').textContent  = fmtINR(totCredit);
@@ -680,23 +746,17 @@ function renderTable() {
 
 // ── Summary
 function renderSummary() {
-  const all   = getEntries();
-  const today = todayStr();
-  const month = today.slice(0,7);
-
+  const today = todayStr(); const month = today.slice(0,7);
   const bySvc = {};
-  all.filter(e => e.date.startsWith(month)).forEach(e => {
-    if (!bySvc[e.service]) bySvc[e.service] = { charge:0, credit:0, debit:0, expense:0, count:0 };
-    bySvc[e.service].charge  += e.charge;
-    bySvc[e.service].credit  += e.credit;
-    bySvc[e.service].debit   += (e.debit||0);
-    bySvc[e.service].expense += e.expense;
+  allEntries.filter(e => e.date && e.date.startsWith(month)).forEach(e => {
+    if (!bySvc[e.service]) bySvc[e.service] = { charge:0, count:0 };
+    bySvc[e.service].charge += (e.charge||0);
     bySvc[e.service].count++;
   });
-  const maxC = Math.max(...Object.values(bySvc).map(v => v.charge), 1);
+  const maxC = Math.max(...Object.values(bySvc).map(v=>v.charge), 1);
   document.getElementById('sum-by-service').innerHTML = !Object.keys(bySvc).length
     ? '<p class="text-sm text-slate-400">No data this month.</p>'
-    : Object.entries(bySvc).sort((a,b) => b[1].charge-a[1].charge).map(([svc,v]) => `
+    : Object.entries(bySvc).sort((a,b)=>b[1].charge-a[1].charge).map(([svc,v])=>`
         <div>
           <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
             <span>${svc} <span class="text-slate-400 font-normal">(${v.count}×)</span></span>
@@ -708,43 +768,38 @@ function renderSummary() {
         </div>`).join('');
 
   const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-29);
-  const cutStr = cutoff.toISOString().split('T')[0];
   const daily = {};
-  all.filter(e => e.date >= cutStr).forEach(e => {
-    if (!daily[e.date]) daily[e.date] = { charge:0, credit:0, debit:0, expense:0 };
-    daily[e.date].charge  += e.charge;
-    daily[e.date].credit  += e.credit;
-    daily[e.date].debit   += (e.debit||0);
-    daily[e.date].expense += e.expense;
+  allEntries.filter(e => e.date >= cutoff.toISOString().split('T')[0]).forEach(e => {
+    daily[e.date] = (daily[e.date]||0) + (e.charge||0);
   });
-  const maxD = Math.max(...Object.values(daily).map(v => v.charge), 1);
+  const maxD = Math.max(...Object.values(daily), 1);
   document.getElementById('sum-daily').innerHTML = !Object.keys(daily).length
     ? '<p class="text-sm text-slate-400">No data in last 30 days.</p>'
-    : Object.entries(daily).sort((a,b) => b[0].localeCompare(a[0])).map(([d,v]) => `
+    : Object.entries(daily).sort((a,b)=>b[0].localeCompare(a[0])).map(([d,v])=>`
         <div class="flex items-center gap-3">
           <div class="text-xs text-slate-500 w-28 flex-shrink-0">${fmtDate(d)}</div>
           <div class="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-            <div class="h-full rounded-full" style="width:${(v.charge/maxD*100).toFixed(1)}%;background:linear-gradient(90deg,#f97f06,#e05c00);"></div>
+            <div class="h-full rounded-full" style="width:${(v/maxD*100).toFixed(1)}%;background:linear-gradient(90deg,#f97f06,#e05c00);"></div>
           </div>
-          <div class="text-xs font-bold charge-col w-20 text-right">${fmtINR(v.charge)}</div>
+          <div class="text-xs font-bold charge-col w-20 text-right">${fmtINR(v)}</div>
         </div>`).join('');
 
   const months = {};
-  all.forEach(e => {
+  allEntries.forEach(e => {
+    if (!e.date) return;
     const mo = e.date.slice(0,7);
     if (!months[mo]) months[mo] = { charge:0, credit:0, debit:0, expense:0, count:0 };
-    months[mo].charge  += e.charge;
-    months[mo].credit  += e.credit;
+    months[mo].charge  += (e.charge||0);
+    months[mo].credit  += (e.credit||0);
     months[mo].debit   += (e.debit||0);
-    months[mo].expense += e.expense;
+    months[mo].expense += (e.expense||0);
     months[mo].count++;
   });
   const MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   document.getElementById('sum-months').innerHTML = !Object.keys(months).length
     ? `<tr><td colspan="7" class="text-center py-6 text-slate-400 text-sm">No data yet.</td></tr>`
-    : Object.entries(months).sort((a,b) => b[0].localeCompare(a[0])).map(([mo,v]) => {
-        const [y,m] = mo.split('-');
-        const net = v.charge - v.expense;
+    : Object.entries(months).sort((a,b)=>b[0].localeCompare(a[0])).map(([mo,v])=>{
+        const [y,m] = mo.split('-'); const net = v.charge-v.expense;
         return `<tr>
           <td class="font-semibold text-slate-700">${MO[+m-1]} ${y}</td>
           <td class="text-right charge-col">${fmtINR(v.charge)}</td>
@@ -753,17 +808,15 @@ function renderSummary() {
           <td class="text-right expense-col">${fmtINR(v.expense)}</td>
           <td class="text-right font-bold ${net>=0?'net-pos':'net-neg'}">${fmtINR(net)}</td>
           <td class="text-right text-slate-500">${v.count}</td>
-        </tr>`;
-      }).join('');
+        </tr>`;}).join('');
 }
 
-// ── Service list
+// ── Services
 function refreshDatalist() {
-  document.getElementById('service-list').innerHTML =
-    getServices().map(s => `<option value="${s}">`).join('');
+  document.getElementById('service-list').innerHTML = allServices.map(s=>`<option value="${s}">`).join('');
 }
 function renderServiceList() {
-  document.getElementById('svc-list').innerHTML = getServices().map((s,i) => `
+  document.getElementById('svc-list').innerHTML = allServices.map((s,i)=>`
     <div class="flex items-center justify-between px-4 py-2.5 rounded-xl border border-slate-100 bg-slate-50">
       <span class="text-sm font-medium text-slate-700">${s}</span>
       <button onclick="removeService(${i})" class="text-red-400 hover:text-red-600 transition-colors">
@@ -771,53 +824,70 @@ function renderServiceList() {
       </button>
     </div>`).join('');
 }
-function addService() {
+async function saveServices() {
+  await sb.from('settings').upsert({ key:'app', value: { ...await getSettings(), services: allServices } });
+}
+async function getSettings() {
+  const { data } = await sb.from('settings').select('value').eq('key','app');
+  return data && data[0] ? data[0].value : {};
+}
+async function addService() {
   const v = document.getElementById('new-svc').value.trim();
-  if (!v) return;
-  const list = getServices();
-  if (!list.includes(v)) { list.push(v); saveSvcs(list); }
+  if (!v || allServices.includes(v)) return;
+  allServices.push(v);
+  await saveServices();
   document.getElementById('new-svc').value = '';
   renderServiceList(); refreshDatalist();
 }
-function removeService(i) {
-  const list = getServices(); list.splice(i,1); saveSvcs(list);
+async function removeService(i) {
+  allServices.splice(i,1);
+  await saveServices();
   renderServiceList(); refreshDatalist();
 }
 
 // ── Password
-function changePwd() {
+async function changePwd() {
   const np = document.getElementById('new-pwd').value;
   const cp = document.getElementById('conf-pwd').value;
   const msg = document.getElementById('pwd-msg');
   if (!np) { msg.style.color='#b02500'; msg.textContent='Enter a new password.'; msg.classList.remove('hidden'); return; }
   if (np !== cp) { msg.style.color='#b02500'; msg.textContent='Passwords do not match.'; msg.classList.remove('hidden'); return; }
-  localStorage.setItem(K_PWD, np);
-  document.getElementById('new-pwd').value='';
-  document.getElementById('conf-pwd').value='';
-  msg.style.color='#0d6b38'; msg.textContent='Password updated!'; msg.classList.remove('hidden');
-  setTimeout(() => msg.classList.add('hidden'), 3000);
+  try {
+    const hash = await sha256(np);
+    const current = await getSettings();
+    await sb.from('settings').upsert({ key:'app', value: { ...current, passwordHash: hash } });
+    document.getElementById('new-pwd').value='';
+    document.getElementById('conf-pwd').value='';
+    msg.style.color='#0d6b38'; msg.textContent='Password updated!'; msg.classList.remove('hidden');
+    setTimeout(()=>msg.classList.add('hidden'), 3000);
+  } catch(err) {
+    msg.style.color='#b02500'; msg.textContent='Error: '+err.message; msg.classList.remove('hidden');
+  }
 }
 
-function clearAll() {
+// ── Clear All
+async function clearAll() {
   if (!confirm('Delete ALL ledger entries permanently? This cannot be undone.')) return;
-  localStorage.removeItem(K_ENTRIES);
-  updateStats(); renderTable();
-  alert('All data cleared.');
+  showLoading(true);
+  const { error } = await sb.from('entries').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  showLoading(false);
+  if (error) alert('Error: ' + error.message);
+  else alert('All entries cleared.');
 }
 
 // ── CSV Export
 function exportCSV() {
-  const rows = filterEntries().sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
+  const rows = filterEntries();
   const cols = ['#','Date','Service Name','Customer','Service Charge','Bank Credit','Bank Debit','Expense','Staff','Remarks','Time'];
   const lines = [cols.join(','),
-    ...rows.map((e,i) => [
-      rows.length-i, e.date, `"${e.service}"`, `"${e.customer||''}"`,
-      e.charge.toFixed(2), e.credit.toFixed(2), (e.debit||0).toFixed(2), e.expense.toFixed(2),
-      `"${e.staff}"`, `"${e.remarks||''}"`, e.time||''
+    ...rows.map((e,i)=>[
+      rows.length-i, e.date||'', `"${e.service||''}"`, `"${e.customer||''}"`,
+      (e.charge||0).toFixed(2),(e.credit||0).toFixed(2),(e.debit||0).toFixed(2),(e.expense||0).toFixed(2),
+      `"${e.staff||''}"`,`"${e.remarks||''}"`,e.time||''
     ].join(','))
   ];
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([lines.join('\n')], {type:'text/csv'}));
+  a.href = URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/csv'}));
   a.download = `ledger_${document.getElementById('tbl-filter').value}_${todayStr()}.csv`;
   a.click();
 }
