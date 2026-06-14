@@ -571,11 +571,24 @@ async function init() {
   // Load all entries once
   await loadEntries();
 
-  // Real-time subscription — table auto-updates when any device adds/deletes
+  // Real-time subscription — update local state from payload instead of reloading
   realtimeSub = sb
     .channel('entries-live')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'entries' }, () => {
-      loadEntries();
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'entries' }, (payload) => {
+      allEntries.unshift(payload.new);
+      updateStats();
+      renderTable();
+    })
+    .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'entries' }, (payload) => {
+      allEntries = allEntries.filter(e => e.id !== payload.old.id);
+      updateStats();
+      renderTable();
+    })
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'entries' }, (payload) => {
+      const idx = allEntries.findIndex(e => e.id === payload.new.id);
+      if (idx !== -1) allEntries[idx] = payload.new;
+      updateStats();
+      renderTable();
     })
     .subscribe();
 }
@@ -584,7 +597,8 @@ async function loadEntries() {
   const { data, error } = await sb
     .from('entries')
     .select('*')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(5000);
 
   if (error) {
     document.getElementById('tbl-body').innerHTML = `
