@@ -8,8 +8,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
 
-  <!-- Supabase JS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     body { font-family: 'Inter', sans-serif; }
@@ -59,7 +57,7 @@
 <!-- ══════════ NOT CONFIGURED BANNER ══════════ -->
 <div id="config-banner" class="hidden fixed top-0 left-0 right-0 z-50 px-6 py-3 text-sm font-semibold text-white flex items-center gap-3" style="background:#b02500;">
   <span class="material-symbols-outlined" style="font-size:18px;">warning</span>
-  Supabase is not configured. Open admin.html and replace SUPABASE_URL and SUPABASE_ANON_KEY at the top of the script.
+  Database not reachable.
 </div>
 
 <!-- ══════════ LOGIN ══════════ -->
@@ -411,7 +409,7 @@
           <span class="material-symbols-outlined flex-shrink-0" style="color:#d97706;font-variation-settings:'FILL' 1;">construction</span>
           <div>
             <p class="text-sm font-bold mb-1" style="color:#92400e;">One-time setup: create the bills table</p>
-            <p class="text-xs mb-3" style="color:#78350f;">Open your Supabase project → SQL Editor and run:</p>
+            <p class="text-xs mb-3" style="color:#78350f;">Tables are created automatically in Neon. If you still see this, check the DATABASE_URL env var in Vercel and redeploy. Manual SQL:</p>
             <pre class="text-xs rounded-xl p-3 overflow-x-auto" style="background:#fff;border:1px solid #fcd34d;color:#374151;">create table bills (
   id uuid default gen_random_uuid() primary key,
   bill_no integer,
@@ -636,12 +634,23 @@
 
 <script>
 // ════════════════════════════════════════════
-//  SUPABASE CONFIG — REPLACE WITH YOUR OWN
-//  Get from: supabase.com → Project Settings → API
+//  DATABASE — Neon via /api/db (Vercel serverless, uses DATABASE_URL)
 // ════════════════════════════════════════════
-const SUPABASE_URL      = 'https://fedlvbjviofkzktaqrxs.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlZGx2Ymp2aW9ma3prdGFxcnhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMzQwODAsImV4cCI6MjA5NjgxMDA4MH0.x7b-i_GbmdT97FaMFeu9xE2iFtyQ77ZDlCO_uASr2hk';
-// ════════════════════════════════════════════
+let adminHash = '';
+async function api(action, payload) {
+  try {
+    const r = await fetch('/api/db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-hash': adminHash },
+      body: JSON.stringify({ action, payload }),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) return { data: null, error: { message: j.error || ('HTTP ' + r.status), code: r.status } };
+    return { data: j, error: null };
+  } catch (e) {
+    return { data: null, error: { message: e.message } };
+  }
+}
 
 const DEFAULT_SERVICES = [
   'KSEB Bill Payment','BSNL Bill Payment','Water Bill Payment',
@@ -654,16 +663,9 @@ const DEFAULT_SERVICES = [
   'GST Filing','Income Tax Return','Photo / Print Service',
 ];
 
-const isConfigured = !SUPABASE_URL.startsWith('REPLACE');
-if (!isConfigured) document.getElementById('config-banner').classList.remove('hidden');
-
-const sb = isConfigured
-  ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
-
 let allEntries  = [];
 let allServices = [...DEFAULT_SERVICES];
-let realtimeSub = null;
+let pollTimer   = null;
 
 // ── Helpers
 const todayStr = () => new Date().toISOString().split('T')[0];
@@ -715,30 +717,25 @@ function showLoginErr(msg) {
 
 // ── Login
 async function doLogin() {
-  if (!isConfigured) { showLoginErr('Supabase not configured. See red banner.'); return; }
   const pwd = document.getElementById('login-pwd').value;
   if (!pwd) return;
 
   showLoading(true);
   try {
     const hash = await sha256(pwd);
-
-    // Load settings row
-    const { data: rows } = await sb.from('settings').select('value').eq('key','app');
-    const settingsRow = rows && rows[0] ? rows[0].value : null;
-
+    adminHash = hash;
+    const { data, error } = await api('login');
+    if (error) {
+      adminHash = '';
+      showLoading(false);
+      showLoginErr(error.code === 401 ? 'Wrong password.' : 'Connection error: ' + error.message);
+      return;
+    }
+    const settingsRow = data.settings;
     if (!settingsRow || !settingsRow.passwordHash) {
-      // First login — check against default 'admin123'
-      const defaultHash = await sha256('admin123');
-      if (hash !== defaultHash) { showLoading(false); showLoginErr('Wrong password.'); return; }
-      // Save defaults to DB
-      await sb.from('settings').upsert({
-        key: 'app',
-        value: { passwordHash: hash, services: DEFAULT_SERVICES }
-      });
+      await api('saveSettings', { passwordHash: hash, services: DEFAULT_SERVICES });
       allServices = DEFAULT_SERVICES;
     } else {
-      if (hash !== settingsRow.passwordHash) { showLoading(false); showLoginErr('Wrong password.'); return; }
       allServices = settingsRow.services || DEFAULT_SERVICES;
     }
 
@@ -757,7 +754,8 @@ async function doLogin() {
 }
 
 function doLogout() {
-  if (realtimeSub) { sb.removeChannel(realtimeSub); realtimeSub = null; }
+  clearInterval(pollTimer); pollTimer = null;
+  adminHash = '';
   allEntries = [];
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('app').classList.add('hidden');
@@ -774,34 +772,13 @@ async function init() {
   // Load all entries once
   await loadEntries();
 
-  // Real-time subscription — update local state from payload instead of reloading
-  realtimeSub = sb
-    .channel('entries-live')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'entries' }, (payload) => {
-      allEntries.unshift(payload.new);
-      updateStats();
-      renderTable();
-    })
-    .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'entries' }, (payload) => {
-      allEntries = allEntries.filter(e => e.id !== payload.old.id);
-      updateStats();
-      renderTable();
-    })
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'entries' }, (payload) => {
-      const idx = allEntries.findIndex(e => e.id === payload.new.id);
-      if (idx !== -1) allEntries[idx] = payload.new;
-      updateStats();
-      renderTable();
-    })
-    .subscribe();
+  // Poll for changes made on other devices (no realtime in Neon)
+  clearInterval(pollTimer);
+  pollTimer = setInterval(() => { if (!document.hidden) loadEntries(); }, 15000);
 }
 
 async function loadEntries() {
-  const { data, error } = await sb
-    .from('entries')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(5000);
+  const { data, error } = await api('listEntries');
 
   if (error) {
     document.getElementById('tbl-body').innerHTML = `
@@ -861,7 +838,7 @@ async function addEntry() {
   btn.disabled = true;
   btn.textContent = 'Saving…';
 
-  const { error } = await sb.from('entries').insert({
+  const { data: saved, error } = await api('addEntry', {
     date, service, customer, charge, credit, debit, expense, staff, remarks,
     time: new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }),
   });
@@ -870,8 +847,10 @@ async function addEntry() {
   btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">add</span> Add Entry';
 
   if (error) { alert('Save failed: ' + error.message); return; }
+  allEntries.unshift(saved);
+  updateStats();
+  renderTable();
   clearForm();
-  // real-time listener will update the table automatically
 }
 
 function clearForm() {
@@ -884,9 +863,11 @@ function clearForm() {
 // ── Delete
 async function delEntry(id) {
   if (!confirm('Delete this entry?')) return;
-  const { error } = await sb.from('entries').delete().eq('id', id);
-  if (error) alert('Delete failed: ' + error.message);
-  // real-time listener handles table refresh
+  const { error } = await api('deleteEntry', { id });
+  if (error) { alert('Delete failed: ' + error.message); return; }
+  allEntries = allEntries.filter(e => e.id !== id);
+  updateStats();
+  renderTable();
 }
 
 // ── Stats
@@ -1054,11 +1035,7 @@ function renderServiceList() {
     </div>`).join('');
 }
 async function saveServices() {
-  await sb.from('settings').upsert({ key:'app', value: { ...await getSettings(), services: allServices } });
-}
-async function getSettings() {
-  const { data } = await sb.from('settings').select('value').eq('key','app');
-  return data && data[0] ? data[0].value : {};
+  await api('saveSettings', { services: allServices });
 }
 async function addService() {
   const v = document.getElementById('new-svc').value.trim();
@@ -1083,8 +1060,9 @@ async function changePwd() {
   if (np !== cp) { msg.style.color='#b02500'; msg.textContent='Passwords do not match.'; msg.classList.remove('hidden'); return; }
   try {
     const hash = await sha256(np);
-    const current = await getSettings();
-    await sb.from('settings').upsert({ key:'app', value: { ...current, passwordHash: hash } });
+    const { error } = await api('saveSettings', { passwordHash: hash });
+    if (error) throw new Error(error.message);
+    adminHash = hash;
     document.getElementById('new-pwd').value='';
     document.getElementById('conf-pwd').value='';
     msg.style.color='#0d6b38'; msg.textContent='Password updated!'; msg.classList.remove('hidden');
@@ -1098,10 +1076,13 @@ async function changePwd() {
 async function clearAll() {
   if (!confirm('Delete ALL ledger entries permanently? This cannot be undone.')) return;
   showLoading(true);
-  const { error } = await sb.from('entries').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  const { error } = await api('clearEntries');
   showLoading(false);
-  if (error) alert('Error: ' + error.message);
-  else alert('All entries cleared.');
+  if (error) { alert('Error: ' + error.message); return; }
+  allEntries = [];
+  updateStats();
+  renderTable();
+  alert('All entries cleared.');
 }
 
 // ── CSV Export
@@ -1139,16 +1120,9 @@ async function loadBills() {
     <tr><td colspan="10" class="text-center py-14 text-slate-400">
       <div class="spinner mx-auto mb-3"></div>Loading bills…</td></tr>`;
 
-  const { data, error } = await sb
-    .from('bills')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(2000);
+  const { data, error } = await api('listBills');
 
   if (error) {
-    if (error.code === '42P01') {
-      document.getElementById('bills-setup-banner').classList.remove('hidden');
-    }
     document.getElementById('b-tbl-body').innerHTML = `
       <tr><td colspan="10" class="text-center py-10 text-sm font-semibold" style="color:#b02500;">
         <span class="material-symbols-outlined block mb-2" style="font-size:36px;opacity:.4;">error</span>
@@ -1250,10 +1224,10 @@ async function addBill() {
   const bill_no = allBills.reduce((m, b) => Math.max(m, b.bill_no || 0), 0) + 1;
   const time    = new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
 
-  const { data, error } = await sb.from('bills').insert({
+  const { data, error } = await api('addBill', {
     bill_no, date, customer_name: customer, customer_mobile: mobile,
     service, amount, charge, remarks, time
-  }).select().single();
+  });
 
   btn.disabled = false;
   btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">receipt_long</span> Generate Bill &amp; Print';
@@ -1277,7 +1251,7 @@ function clearBillForm() {
 
 async function delBill(id) {
   if (!confirm('Delete this bill?')) return;
-  const { error } = await sb.from('bills').delete().eq('id', id);
+  const { error } = await api('deleteBill', { id });
   if (error) { alert('Delete failed: ' + error.message); return; }
   allBills = allBills.filter(b => b.id !== id);
   updateBillStats();
